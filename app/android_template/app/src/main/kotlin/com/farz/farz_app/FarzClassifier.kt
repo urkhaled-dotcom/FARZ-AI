@@ -159,7 +159,10 @@ class FarzClassifier(private val context: Context) {
         val square = android.graphics.Bitmap.createBitmap(side, side, android.graphics.Bitmap.Config.ARGB_8888)
         Canvas(square).apply {
             drawColor(Color.rgb(245, 247, 242))
-            drawBitmap(oriented, (side - width) / 2f, (side - height) / 2f,
+            // Match PIL SquarePad's integer-floor left/top offsets exactly.
+            val left = (side - width) / 2
+            val top = (side - height) / 2
+            drawBitmap(oriented, left.toFloat(), top.toFloat(),
                 Paint(Paint.FILTER_BITMAP_FLAG or Paint.DITHER_FLAG))
         }
         val resized = android.graphics.Bitmap.createScaledBitmap(square, IMAGE_SIZE, IMAGE_SIZE, true)
