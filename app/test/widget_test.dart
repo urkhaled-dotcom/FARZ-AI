@@ -1,8 +1,18 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:farz_app/main.dart';
 
 void main() {
+  setUp(() {
+    // Render the full starter screen so every class label is mounted.
+  });
+
   testWidgets('FARZ starts in Arabic and shows all five classes', (tester) async {
+    tester.view.physicalSize = const Size(900, 1800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     await tester.pumpWidget(const FarzApp());
 
     expect(find.text('FARZ'), findsOneWidget);
@@ -15,6 +25,11 @@ void main() {
   });
 
   testWidgets('language switch changes labels to English', (tester) async {
+    tester.view.physicalSize = const Size(900, 1800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     await tester.pumpWidget(const FarzApp());
 
     await tester.tap(find.text('EN'));
