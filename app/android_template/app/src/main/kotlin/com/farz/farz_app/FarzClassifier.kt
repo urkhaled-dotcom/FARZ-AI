@@ -23,7 +23,7 @@ class FarzClassifier(private val context: Context) {
         private const val TAG = "FARZ-Classifier"
         private const val MODEL_ASSET = "models/farz_model.onnx"
         private const val IMAGE_SIZE = 224
-        private const val MAX_DECODE_EDGE = 2048
+        private const val MAX_DECODE_EDGE = 1024
         private val CLASS_NAMES = listOf("Glass", "Paper", "Cardboard", "Plastic", "Metal")
         private val MEAN = floatArrayOf(0.485f, 0.456f, 0.406f)
         private val STD = floatArrayOf(0.229f, 0.224f, 0.225f)
