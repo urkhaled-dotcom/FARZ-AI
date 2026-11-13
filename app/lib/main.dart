@@ -163,10 +163,12 @@ class _FarzHomePageState extends State<FarzHomePage> {
 
   Future<void> _checkModel() async {
     final ready = await _inference.isModelReady();
-    if (mounted) setState(() {
-      _modelReady = ready;
-      _checking = false;
-    });
+    if (mounted) {
+      setState(() {
+        _modelReady = ready;
+        _checking = false;
+      });
+    }
   }
 
   Future<void> _loadHistory() async {
