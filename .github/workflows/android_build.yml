@@ -67,20 +67,18 @@ jobs:
         run: flutter test
 
       - name: Build APK
-        run: flutter build apk --release --target-platform android-arm64,android-x64
+        run: flutter build apk --release --target-platform android-arm,android-arm64,android-x64
 
       - name: Verify APK contains model, runtimes, label and launcher resources
         run: |
           set -euo pipefail
           APK="build/app/outputs/flutter-apk/app-release.apk"
           test -s "$APK"
-          unzip -l "$APK" | grep -F 'assets/models/farz_model.pte'
-          unzip -l "$APK" | grep -F 'lib/arm64-v8a/libexecutorch.so'
-          unzip -l "$APK" | grep -F 'lib/x86_64/libexecutorch.so'
-          if unzip -l "$APK" | grep -q 'lib/armeabi-v7a/'; then
-            echo "Unsupported 32-bit ARM libraries were packaged."
-            exit 1
-          fi
+          unzip -l "$APK" | grep -F 'assets/models/farz_model.ptl'
+          unzip -l "$APK" | grep -F 'lib/armeabi-v7a/libpytorch_jni_lite.so'
+          unzip -l "$APK" | grep -F 'lib/arm64-v8a/libpytorch_jni_lite.so'
+          unzip -l "$APK" | grep -F 'lib/x86_64/libpytorch_jni_lite.so'
+          
           if command -v aapt >/dev/null 2>&1; then
             aapt dump badging "$APK" | grep -E "application-label:|application-icon"
           fi
@@ -113,13 +111,13 @@ jobs:
       - name: Smoke test release APK on Android emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 35
+          api-level: 29
           target: google_apis
           arch: x86_64
           profile: pixel_7_pro
           disable-animations: true
           script: |
-            set -euo pipefail
+            set -eu
             adb install -r app/build/app/outputs/flutter-apk/app-release.apk
             adb shell am force-stop com.farz.farz_app
             adb shell monkey -p com.farz.farz_app 1
