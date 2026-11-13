@@ -36,7 +36,7 @@ FARZ is a focused deep-learning course capstone: an Android-first, bilingual app
 - [x] Reproducible group-aware split generated: 1,702 train / 341 validation / 341 test.
 - [x] PyTorch Dataset, image transforms, MobileNetV3-Small factory, training loop, and test evaluator implemented.
 - [x] Colab notebook prepared to download the dataset directly to Colab, train, evaluate, and save results to Drive.
-- [x] Local code smoke tests: four tests pass; train/evaluation code also ran a tiny CPU smoke test to verify checkpoint and report creation. This is not a model-quality result.
+- [x] Local verification: seven Python tests pass; a tiny CPU smoke test also verified training, checkpoint saving, and test-report generation. These are code checks, not model-quality results.
 - [ ] Run the full training job on a Colab GPU and record real validation/test metrics.
 - [ ] Export the trained checkpoint to ExecuTorch and verify on Android.
 - [ ] Integrate camera/gallery and offline inference into Flutter.
@@ -50,7 +50,7 @@ The raw dataset is intentionally not committed to GitHub. The notebook obtains t
 
 ## Start model training in Colab
 
-1. Download the small [FARZ-ML-Training-Source.zip](https://github.com/urkhaled-dotcom/FARZ-AI/releases) package from this project conversation (or use the attached project bundle).
+1. Download the small **FARZ-ML-Training-Source.zip** bundle attached to this project conversation.
 2. Open [FARZ_Training_Colab.ipynb](ml/notebooks/FARZ_Training_Colab.ipynb) in Colab.
 3. Choose a GPU runtime.
 4. Run the notebook from top to bottom. It downloads the 42.8 MB resized dataset into Colab, checks and splits the five classes, trains MobileNetV3-Small, evaluates on the held-out test set, and saves model/results to Google Drive.
