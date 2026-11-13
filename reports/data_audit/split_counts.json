@@ -1,0 +1,37 @@
+{
+  "seed": 42,
+  "method": "StratifiedGroupKFold(7): folds 2-6 train, fold 1 validation, fold 0 test",
+  "max_phash_distance_grouped": 4,
+  "candidate_images": 2384,
+  "unique_groups": 2360,
+  "split_counts": {
+    "train": 1702,
+    "validation": 341,
+    "test": 341
+  },
+  "class_counts": {
+    "train": {
+      "Cardboard": 288,
+      "Glass": 355,
+      "Metal": 292,
+      "Paper": 424,
+      "Plastic": 343
+    },
+    "validation": {
+      "Cardboard": 58,
+      "Glass": 71,
+      "Metal": 59,
+      "Paper": 85,
+      "Plastic": 68
+    },
+    "test": {
+      "Cardboard": 57,
+      "Glass": 72,
+      "Metal": 58,
+      "Paper": 85,
+      "Plastic": 69
+    }
+  },
+  "group_leakage": false,
+  "exact_conflict_files_included": 0
+}
