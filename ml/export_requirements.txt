@@ -1,5 +1,5 @@
-# Host export environment matching the FARZ Android ExecuTorch 1.5.1 AAR.
-# Install from the PyTorch CPU wheel index to avoid CUDA runtime mismatches.
+# Host export environment aligned with the Android ExecuTorch 1.5.1 runtime.
+# Use the PyTorch CPU wheel index to avoid pulling CUDA libraries.
 --index-url https://download.pytorch.org/whl/cpu
 --extra-index-url https://pypi.org/simple
 torch==2.14.0+cpu
