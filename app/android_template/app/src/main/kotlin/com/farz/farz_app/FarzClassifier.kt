@@ -81,7 +81,7 @@ class FarzClassifier(private val context: Context) {
         val output = model.forward(IValue.from(tensor)).toTensor()
         val logits = output.dataAsFloatArray
         if (logits.size != CLASS_NAMES.size) {
-            throw IllegalStateException("Expected 5 class scores, received \${logits.size}.")
+            throw IllegalStateException("Expected 5 class scores, received ${logits.size}.")
         }
         val probabilities = softmax(logits)
         val predictedIndex = probabilities.indices.maxByOrNull { probabilities[it] } ?: 0
