@@ -1,0 +1,5 @@
+{
+  "class_names": ["Glass", "Paper", "Cardboard", "Plastic", "Metal"],
+  "num_classes": 5,
+  "excluded_classes": ["Trash"]
+}
