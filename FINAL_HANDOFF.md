@@ -23,10 +23,7 @@ The current work environment does not have ExecuTorch installed and cannot acces
 ### Export without retraining
 
 1. Open `ml/notebooks/FARZ_Export_Colab.ipynb` in Google Colab.
-2. Upload:
-   - `FARZ-ML-Training-Source-v6.zip`
-   - `FARZ-training-results.zip` (the existing Colab training-results ZIP)
-   - the exact Experiment 01 `data_split.csv`
+2. Upload just **`FARZ-Export-Input-v1.zip`** when prompted. It contains the trained checkpoint, exact split and exporter source; no separate results ZIP or CSV upload is needed.
 3. Run the notebook from top to bottom. It downloads TrashNet directly into Colab, verifies image hashes and the exact split, installs PyTorch 2.14.0+cpu / TorchVision 0.29.0+cpu / ExecuTorch 1.5.1, exports with XNNPACK and checks 30 balanced test photos.
 4. Continue only when the report shows **30/30 top-1 prediction matches**. The notebook creates `FARZ-ExecuTorch-Export.zip` and saves the files to Drive.
 5. Add these files to GitHub:
@@ -38,7 +35,7 @@ The current work environment does not have ExecuTorch installed and cannot acces
 
 - `FARZ-Android-v0.2.0-bridge.apk` — successful Android build; PTE model is not bundled yet.
 - `FARZ-Project-Bundle-v0.7.zip` — project source, checkpoint, exact split, experiment reports, Colab notebooks and mobile bridge.
-- `FARZ-ML-Training-Source-v6.zip` — lightweight source package for the Colab export notebook.
+- `FARZ-Export-Input-v1.zip` — one-file export input with checkpoint, exact split and exporter code.
 - `FARZ_Export_Colab.ipynb` — standalone export notebook.
 
 ## Limitations
