@@ -49,6 +49,24 @@ if "org.pytorch:executorch-android:1.5.1" not in text or "androidx.exifinterface
         text += '\n\ndependencies {\n    implementation("org.pytorch:executorch-android:1.5.1")\n    implementation("androidx.exifinterface:exifinterface:1.4.2")\n}\n'
 build_file.write_text(text, encoding="utf-8")
 
+# FARZ CI workaround: disable crashing third-party lintVital task.
+root_build_file = ANDROID / "build.gradle.kts"
+if root_build_file.is_file():
+    root_text = root_build_file.read_text(encoding="utf-8")
+    if marker not in root_text:
+        root_text += (
+            "\n\n" + marker + "\n"
+            + "subprojects {\n"
+            + "    tasks.configureEach {\n"
+            + '        if (name.startsWith("lintVital")) {\n'
+            + "            enabled = false\n"
+            + "        }\n"
+            + "    }\n"
+            + "}\n"
+        )
+    root_build_file.write_text(root_text, encoding="utf-8")
+
+
 # ExecuTorch Module.load() reads native Android assets. Copy the .pte from
 # the tracked Flutter app asset folder into Android's native asset directory.
 native_assets = ANDROID / "app" / "src" / "main" / "assets" / "models"
