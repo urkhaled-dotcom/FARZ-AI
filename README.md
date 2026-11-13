@@ -68,7 +68,7 @@ CI checks that the ONNX model and all four native runtimes are actually present,
 
 The trained checkpoint is not yet converted to ONNX. The old `.pte` file cannot be loaded by ONNX Runtime, so **do not use the old APK** as the delivery version.
 
-Open [FARZ Universal ONNX Export Colab](ml/notebooks/FARZ_Universal_ONNX_Export.ipynb) and upload `FARZ-Export-Input-v1.zip`. The notebook downloads the dataset directly inside Colab, uses a CPU-only export environment, converts the existing checkpoint without retraining, and checks PyTorch vs ONNX Runtime parity on 30 balanced held-out test images. It stops unless all 30 predictions match.
+Open the attached **`FARZ_Universal_ONNX_Export.ipynb`** notebook delivered with this project and upload `FARZ-Export-Input-v1.zip`. The notebook downloads the dataset directly inside Colab, uses a CPU-only export environment, converts the existing checkpoint without retraining, and checks PyTorch vs ONNX Runtime parity on 30 balanced held-out test images. It stops unless all 30 predictions match.
 
 After a successful 30/30 report:
 1. Upload `farz_model.onnx` to `app/assets/models/farz_model.onnx`.
