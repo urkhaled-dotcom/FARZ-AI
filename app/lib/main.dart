@@ -256,8 +256,8 @@ class _FarzHomePageState extends State<FarzHomePage> {
     final text = error.toString();
     if (text.contains('MODEL_NOT_FOUND') || text.contains('model file')) {
       return tr(
-        'ملف النموذج غير مدمج داخل التطبيق بعد. أضف farz_model.pte إلى assets/models ثم أعد البناء.',
-        'The model is not bundled yet. Add farz_model.pte to assets/models and rebuild the APK.',
+        'ملف النموذج غير مدمج داخل التطبيق بعد. أضف farz_model.onnx إلى assets/models ثم أعد البناء.',
+        'The model is not bundled yet. Add farz_model.onnx to assets/models and rebuild the APK.',
       );
     }
     return tr('حدث خطأ أثناء التصنيف: $text', 'Classification failed: $text');
