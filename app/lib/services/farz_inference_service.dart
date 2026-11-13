@@ -21,7 +21,7 @@ class FarzInferenceService {
       'classifyImage', {'path': image.path},
     );
     if (response == null) {
-      throw const PlatformException(code: 'EMPTY_RESULT', message: 'The on-device model returned no result.');
+      throw PlatformException(code: 'EMPTY_RESULT', message: 'The on-device model returned no result.');
     }
     return ClassificationResult.fromPlatform(response);
   }
