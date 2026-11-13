@@ -71,9 +71,13 @@ jobs:
           test -s "$APK"
           unzip -l "$APK" | grep -F 'assets/models/farz_model.onnx'
           unzip -l "$APK" | grep -F 'lib/armeabi-v7a/libonnxruntime.so'
+          unzip -l "$APK" | grep -F 'lib/armeabi-v7a/libonnxruntime4j_jni.so'
           unzip -l "$APK" | grep -F 'lib/arm64-v8a/libonnxruntime.so'
+          unzip -l "$APK" | grep -F 'lib/arm64-v8a/libonnxruntime4j_jni.so'
           unzip -l "$APK" | grep -F 'lib/x86/libonnxruntime.so'
+          unzip -l "$APK" | grep -F 'lib/x86/libonnxruntime4j_jni.so'
           unzip -l "$APK" | grep -F 'lib/x86_64/libonnxruntime.so'
+          unzip -l "$APK" | grep -F 'lib/x86_64/libonnxruntime4j_jni.so'
           if command -v aapt >/dev/null 2>&1; then
             aapt dump badging "$APK" | grep -E "application-label:|application-icon"
           fi
