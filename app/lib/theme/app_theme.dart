@@ -12,83 +12,31 @@ abstract final class FarzColors {
 }
 
 ThemeData buildFarzLightTheme() {
-  final scheme = ColorScheme.fromSeed(
-    seedColor: FarzColors.forest,
-    brightness: Brightness.light,
-  ).copyWith(
-    primary: FarzColors.forest,
-    onPrimary: Colors.white,
-    secondary: FarzColors.mint,
-    surface: Colors.white,
+  final scheme = ColorScheme.fromSeed(seedColor: FarzColors.forest, brightness: Brightness.light).copyWith(
+    primary: FarzColors.forest, onPrimary: Colors.white, secondary: FarzColors.mint, surface: Colors.white,
   );
-
   return ThemeData(
-    useMaterial3: true,
-    colorScheme: scheme,
-    scaffoldBackgroundColor: FarzColors.ecoWhite,
-    appBarTheme: const AppBarTheme(
-      backgroundColor: FarzColors.ecoWhite,
-      foregroundColor: FarzColors.charcoal,
-      centerTitle: false,
-      elevation: 0,
-    ),
-    cardTheme: CardThemeData(
-      color: Colors.white,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-      ),
-    ),
-    filledButtonTheme: FilledButtonThemeData(
-      style: FilledButton.styleFrom(
-        backgroundColor: FarzColors.forest,
-        foregroundColor: Colors.white,
-        minimumSize: const Size.fromHeight(54),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-        ),
-      ),
-    ),
+    useMaterial3: true, colorScheme: scheme, scaffoldBackgroundColor: FarzColors.ecoWhite,
+    appBarTheme: const AppBarTheme(backgroundColor: FarzColors.ecoWhite, foregroundColor: FarzColors.charcoal, centerTitle: false, elevation: 0),
+    cardTheme: CardThemeData(color: Colors.white, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24))),
+    filledButtonTheme: FilledButtonThemeData(style: FilledButton.styleFrom(
+      backgroundColor: FarzColors.forest, foregroundColor: Colors.white, minimumSize: const Size.fromHeight(54),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+    )),
   );
 }
 
 ThemeData buildFarzDarkTheme() {
-  final scheme = ColorScheme.fromSeed(
-    seedColor: FarzColors.darkPrimary,
-    brightness: Brightness.dark,
-  ).copyWith(
-    primary: FarzColors.darkPrimary,
-    onPrimary: FarzColors.darkBackground,
-    secondary: FarzColors.mint,
-    surface: FarzColors.charcoal,
+  final scheme = ColorScheme.fromSeed(seedColor: FarzColors.darkPrimary, brightness: Brightness.dark).copyWith(
+    primary: FarzColors.darkPrimary, onPrimary: FarzColors.darkBackground, secondary: FarzColors.mint, surface: FarzColors.charcoal,
   );
-
   return ThemeData(
-    useMaterial3: true,
-    colorScheme: scheme,
-    scaffoldBackgroundColor: FarzColors.darkBackground,
-    appBarTheme: const AppBarTheme(
-      backgroundColor: FarzColors.darkBackground,
-      foregroundColor: Color(0xFFF2F5F1),
-      centerTitle: false,
-      elevation: 0,
-    ),
-    cardTheme: CardThemeData(
-      color: FarzColors.charcoal,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-      ),
-    ),
-    filledButtonTheme: FilledButtonThemeData(
-      style: FilledButton.styleFrom(
-        backgroundColor: const Color(0xFF267957),
-        foregroundColor: Colors.white,
-        minimumSize: const Size.fromHeight(54),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-        ),
-      ),
-    ),
+    useMaterial3: true, colorScheme: scheme, scaffoldBackgroundColor: FarzColors.darkBackground,
+    appBarTheme: const AppBarTheme(backgroundColor: FarzColors.darkBackground, foregroundColor: Color(0xFFF2F5F1), centerTitle: false, elevation: 0),
+    cardTheme: CardThemeData(color: FarzColors.charcoal, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24))),
+    filledButtonTheme: FilledButtonThemeData(style: FilledButton.styleFrom(
+      backgroundColor: const Color(0xFF267957), foregroundColor: Colors.white, minimumSize: const Size.fromHeight(54),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+    )),
   );
 }
