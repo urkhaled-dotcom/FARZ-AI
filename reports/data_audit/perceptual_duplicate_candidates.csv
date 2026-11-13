@@ -1,0 +1,28 @@
+phash_hamming_distance,pixel_identical,mean_absolute_pixel_error_0_255,class_a,file_a,class_b,file_b,review_status
+0,True,0.0,glass,glass115.jpg,metal,metal91.jpg,confirmed byte-identical cross-file content
+0,True,0.0,glass,glass176.jpg,plastic,plastic152.jpg,confirmed byte-identical cross-file content
+0,True,0.0,glass,glass389.jpg,plastic,plastic332.jpg,confirmed byte-identical cross-file content
+0,False,10.33,paper,paper180.jpg,paper,paper284.jpg,visual review candidate only; not confirmed duplicate
+0,False,12.54,paper,paper246.jpg,paper,paper349.jpg,visual review candidate only; not confirmed duplicate
+0,False,22.61,paper,paper101.jpg,paper,paper108.jpg,visual review candidate only; not confirmed duplicate
+0,False,25.67,paper,paper305.jpg,paper,paper308.jpg,visual review candidate only; not confirmed duplicate
+2,False,12.22,cardboard,cardboard15.jpg,cardboard,cardboard361.jpg,visual review candidate only; not confirmed duplicate
+2,False,15.08,paper,paper522.jpg,paper,paper534.jpg,visual review candidate only; not confirmed duplicate
+2,False,15.52,paper,paper147.jpg,paper,paper99.jpg,visual review candidate only; not confirmed duplicate
+2,False,17.93,paper,paper459.jpg,paper,paper466.jpg,visual review candidate only; not confirmed duplicate
+2,False,24.16,metal,metal155.jpg,metal,metal6.jpg,visual review candidate only; not confirmed duplicate
+2,False,25.96,plastic,plastic11.jpg,metal,metal159.jpg,visual review candidate only; not confirmed duplicate
+2,False,25.99,cardboard,cardboard386.jpg,cardboard,cardboard72.jpg,visual review candidate only; not confirmed duplicate
+2,False,26.92,paper,paper540.jpg,paper,paper56.jpg,visual review candidate only; not confirmed duplicate
+2,False,30.21,paper,paper314.jpg,paper,paper53.jpg,visual review candidate only; not confirmed duplicate
+2,False,30.86,paper,paper152.jpg,paper,paper392.jpg,visual review candidate only; not confirmed duplicate
+2,False,42.48,paper,paper135.jpg,paper,paper496.jpg,visual review candidate only; not confirmed duplicate
+4,False,11.44,paper,paper123.jpg,paper,paper547.jpg,visual review candidate only; not confirmed duplicate
+4,False,15.75,paper,paper185.jpg,paper,paper390.jpg,visual review candidate only; not confirmed duplicate
+4,False,18.79,metal,metal120.jpg,metal,metal50.jpg,visual review candidate only; not confirmed duplicate
+4,False,19.36,paper,paper345.jpg,paper,paper451.jpg,visual review candidate only; not confirmed duplicate
+4,False,21.38,paper,paper176.jpg,paper,paper549.jpg,visual review candidate only; not confirmed duplicate
+4,False,22.6,plastic,plastic10.jpg,metal,metal154.jpg,visual review candidate only; not confirmed duplicate
+4,False,23.67,paper,paper68.jpg,paper,paper74.jpg,visual review candidate only; not confirmed duplicate
+4,False,29.11,paper,paper2.jpg,paper/paper40.jpg,paper,paper40.jpg,visual review candidate only; not confirmed duplicate
+4,False,34.05,paper,paper457.jpg,paper,paper553.jpg,visual review candidate only; not confirmed duplicate
