@@ -1,0 +1,16 @@
+{
+  "test_images": 340,
+  "correct_predictions": 317,
+  "incorrect_predictions": 23,
+  "test_loss": 0.21866745212498834,
+  "accuracy": 0.9323529411764706,
+  "macro_precision": 0.9326076878316988,
+  "macro_recall": 0.9346273409335915,
+  "macro_f1": 0.9321533351615294,
+  "class_names": ["Glass", "Paper", "Cardboard", "Plastic", "Metal"],
+  "checkpoint_epoch": 12,
+  "device": "cuda",
+  "checkpoint_size_bytes": 6227077,
+  "softmax_scores_calibrated": false,
+  "note": "Metrics are taken from the submitted Colab output bundle."
+}
