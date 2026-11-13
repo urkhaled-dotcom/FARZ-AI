@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">FARZ app icon</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2B936A"/><stop offset="1" stop-color="#12543E"/></linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="url(#bg)"/>
+  <g transform="translate(256 244)" fill="none" stroke="#F5F7F2" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M-42 -148 C20 -176 92 -143 115 -83"/>
+    <path d="M82 -133 L122 -73 L52 -67"/>
+    <path d="M151 -15 C171 51 134 119 72 143"/>
+    <path d="M136 91 L65 153 L54 79"/>
+    <path d="M-20 153 C-91 159 -151 111 -161 43"/>
+    <path d="M-169 86 L-167 11 L-110 57"/>
+  </g>
+  <path d="M176 274 C183 194 255 151 338 167 C327 248 258 307 176 274Z" fill="#BCE8D4"/>
+  <path d="M192 273 C231 238 272 205 321 184" fill="none" stroke="#176B50" stroke-width="13" stroke-linecap="round"/>
+</svg>
