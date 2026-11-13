@@ -1,0 +1,14 @@
+{
+  "full_manifest_images": 2390,
+  "training_candidate_images": 2384,
+  "held_out_images": 6,
+  "training_candidate_class_counts": {
+    "Cardboard": 403,
+    "Glass": 498,
+    "Metal": 409,
+    "Paper": 594,
+    "Plastic": 480
+  },
+  "physical_source_images_deleted_or_modified": 0,
+  "split_created": false
+}
