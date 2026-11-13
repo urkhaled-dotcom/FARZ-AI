@@ -9,6 +9,11 @@ on:
   push:
     paths:
       - 'app/assets/models/farz_model.onnx'
+      - 'app/lib/**'
+      - 'app/android_template/**'
+      - 'app/pubspec.yaml'
+      - 'scripts/prepare_android.py'
+      - '.github/workflows/android_build.yml'
 
 jobs:
   build:
@@ -108,12 +113,13 @@ jobs:
           api-level: 29
           target: google_apis
           arch: x86_64
-          profile: pixel_7_pro
+          profile: pixel_2
           disable-animations: true
           script: |
             set -eu
-            # Exercise the actual ONNX model on Android 10 before checking the release APK.
-            ./app/android/gradlew -p app/android connectedAndroidTest --no-daemon
+            # Exercise the actual ONNX model on an Android emulator before checking the release APK.
+            adb logcat -c
+            ./app/android/gradlew -p app/android connectedAndroidTest --no-daemon --stacktrace
             adb uninstall com.farz.farz_app || true
             adb install -r app/build/app/outputs/flutter-apk/app-release.apk
             adb shell am force-stop com.farz.farz_app
@@ -125,3 +131,4 @@ jobs:
               exit 1
             fi
             echo "FARZ ONNX inference test and release startup passed on Android API 29."
+            adb logcat -d -s FARZ-Classifier:I FARZ-MainActivity:I
