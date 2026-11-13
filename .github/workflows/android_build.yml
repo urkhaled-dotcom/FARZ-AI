@@ -9,7 +9,6 @@ on:
   push:
     paths:
       - 'app/assets/models/farz_model.onnx'
-      - 'app/assets/models/farz_model_metadata.json'
 
 jobs:
   build:
