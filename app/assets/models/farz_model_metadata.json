@@ -29,7 +29,5 @@
     0.225
   ],
   "runtime": "Microsoft ONNX Runtime Android 1.31.1",
-  "execution_provider": "CPU",
-  "onnx_opset": 17,
-  "export_status": "awaiting verified model file"
+  "execution_provider": "CPU"
 }
