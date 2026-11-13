@@ -12,7 +12,7 @@ Export the trained MobileNetV3-Small checkpoint to ONNX for Microsoft ONNX Runti
 
 ## Export in Google Colab
 
-Open `FARZ_Universal_ONNX_Export.ipynb`. Upload the single `FARZ-Export-Input-v1.zip` archive when prompted. The notebook:
+Open the attached `FARZ_Universal_ONNX_Export.ipynb` notebook delivered with this project. Upload the single `FARZ-Export-Input-v1.zip` archive when prompted. The notebook:
 
 1. Loads the exact saved checkpoint and the original 2,384-row manifest.
 2. Downloads TrashNet images directly into Colab and verifies image SHA-256 hashes.
