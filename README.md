@@ -58,7 +58,7 @@ GitHub Actions run [43357785463](https://github.com/urkhaled-dotcom/FARZ-AI/acti
 
 ## Export the trained model (no retraining)
 
-Open [FARZ ExecuTorch Export Colab](ml/notebooks/FARZ_Export_Colab.ipynb). It uses the existing Experiment 01 checkpoint and exact split, downloads the images directly to Colab, verifies SHA-256 hashes, exports with ExecuTorch 1.5.1/XNNPACK, and checks top-1 parity on a balanced 30-image test sample.
+Open [FARZ ExecuTorch Export Colab](ml/notebooks/FARZ_Export_Colab.ipynb) and upload only `FARZ-Export-Input-v1.zip`. That one bundle contains the existing Experiment 01 checkpoint, exact split and exporter code. The notebook downloads the images directly to Colab, verifies SHA-256 hashes, exports with ExecuTorch 1.5.1/XNNPACK, and checks top-1 parity on a balanced 30-image test sample.
 
 Export environment: PyTorch 2.14.0+cpu, TorchVision 0.29.0+cpu, ExecuTorch 1.5.1. Install instructions are in the [export guide](ml/src/export/README.md). The notebook stops if any top-1 prediction differs.
 
