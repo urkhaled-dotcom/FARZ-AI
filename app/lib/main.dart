@@ -182,7 +182,9 @@ class _FarzHomePageState extends State<FarzHomePage> {
     for (final value in values) {
       try {
         final decoded = jsonDecode(value);
-        if (decoded is Map<String, dynamic>) entries.add(decoded);
+        if (decoded is Map<String, dynamic>) {
+          entries.add(decoded);
+        }
       } catch (_) {
         // Ignore one malformed local entry.
       }
