@@ -59,7 +59,7 @@ missing = [line for line in required if line not in text]
 if missing:
     match = re.search(r"dependencies\s*\{", text)
     if match:
-        text = text[:match.end()] + "\n    " + "\n    ".join(missing) + text[match.end():]
+        text = text[:match.end()] + "\n    " + "\n    ".join(missing) + "\n" + text[match.end():]
     else:
         text += "\n\ndependencies {\n    " + "\n    ".join(missing) + "\n}\n"
 build_file.write_text(text, encoding="utf-8")
