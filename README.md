@@ -54,7 +54,9 @@ The checkpoint was independently re-evaluated against the exact Colab `data_spli
 
 GitHub Actions run [43357785463](https://github.com/urkhaled-dotcom/FARZ-AI/actions/runs/43357785463) passed Flutter analysis, all 3 widget tests, and Android release APK build/upload. The APK contains the Flutter UI and ExecuTorch native runtime/bridge for arm64-v8a and x86_64.
 
-**The trained `.pte` model asset is not included in this APK yet.** The app intentionally displays the model-not-ready state and disables classification until export parity succeeds and `app/assets/models/farz_model.pte` is added. This is a deliberate safety check, not a pretend inference implementation.
+**ExecuTorch export completed and verified:** the exact Experiment 01 checkpoint was exported to a 6,124,436-byte `.pte` using ExecuTorch 1.5.1 + XNNPACK. The Python ExecuTorch runtime matched PyTorch top-1 predictions on **30/30** balanced held-out test images (maximum absolute logit error: 4.27e-05). The SHA-256 of `farz_model.pte` is `74ebef11b76292696b9f69f588ea550c90a978c447038493f5ad5b8a02018195`.
+
+**Repository packaging step:** place the exported `farz_model.pte` and `farz_model_metadata.json` into `app/assets/models/` and commit them. The Android workflow copies the PTE into native Android assets before building. Python-runtime parity is verified; physical Android inference and airplane-mode behavior still require testing on a real device.
 
 ## Export the trained model (no retraining)
 
