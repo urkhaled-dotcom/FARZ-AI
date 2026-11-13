@@ -10,7 +10,7 @@ classes:
   - Plastic
   - Metal
 data:
-  manifest: data/manifests/training_candidate_manifest.csv
+  manifest: data/manifests/data_split.csv
   split:
     train: 0.70
     validation: 0.15
