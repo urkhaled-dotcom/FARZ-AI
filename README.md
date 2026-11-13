@@ -34,7 +34,7 @@ FARZ is a focused deep-learning course capstone: an Android-first, bilingual mob
 - [x] Arabic/English home-screen labels and Light/Dark/System theme controls added.
 - [x] Exact cross-label duplicate pairs documented and held out pending manual review.
 - [x] Dataset audit scripts run against the provided dataset archive: 2,390 valid images, zero unreadable images, three exact cross-label duplicate groups.
-- [x] Local data-contract tests pass (2 tests).
+- [x] Local Python tests pass (4 tests, including grouped-split leakage checks).
 - [ ] Review remaining near-duplicate candidates and label quality.
 - [x] Create a reproducible leakage-aware split: 1,702 train / 341 validation / 341 test; near-duplicate candidates grouped before splitting.
 - [ ] Train and evaluate a compact PyTorch model.
