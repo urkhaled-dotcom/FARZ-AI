@@ -9,18 +9,19 @@ import android.graphics.Matrix
 import android.graphics.Paint
 import android.util.Log
 import androidx.exifinterface.media.ExifInterface
-import org.pytorch.executorch.EValue
-import org.pytorch.executorch.Module
-import org.pytorch.executorch.Tensor
+import org.pytorch.IValue
+import org.pytorch.LiteModuleLoader
+import org.pytorch.Module
+import org.pytorch.Tensor
 import java.io.File
 import kotlin.math.exp
 import kotlin.math.max
 
-/** Executes the FARZ MobileNetV3-Small PTE model locally with XNNPACK. */
+/** Runs the FARZ MobileNetV3-Small TorchScript Lite model locally on the CPU. */
 class FarzClassifier(private val context: Context) {
     companion object {
         private const val TAG = "FARZ-Classifier"
-        private const val MODEL_ASSET = "models/farz_model.pte"
+        private const val MODEL_ASSET = "models/farz_model.ptl"
         private const val IMAGE_SIZE = 224
         private val CLASS_NAMES = listOf("Glass", "Paper", "Cardboard", "Plastic", "Metal")
         private val MEAN = floatArrayOf(0.485f, 0.456f, 0.406f)
@@ -29,13 +30,7 @@ class FarzClassifier(private val context: Context) {
 
     @Volatile private var module: Module? = null
 
-    /**
-     * Check only that the bundled PTE asset exists.
-     *
-     * Do not initialize ExecuTorch while the home screen is starting. Native
-     * model initialization is deferred until the user explicitly requests a
-     * classification, so a runtime/ABI issue cannot terminate app startup.
-     */
+    /** Check the bundled model without initializing the native inference runtime. */
     fun isModelReady(): Boolean {
         return try {
             context.assets.open(MODEL_ASSET).use { stream -> stream.read() >= 0 }
@@ -48,16 +43,16 @@ class FarzClassifier(private val context: Context) {
     @Synchronized
     private fun getModule(): Module {
         module?.let { return it }
-        val loaded = Module.load(copyModelToFiles())
+        val loaded = LiteModuleLoader.load(copyModelToFiles())
         module = loaded
-        Log.i(TAG, "ExecuTorch model loaded successfully.")
+        Log.i(TAG, "PyTorch Lite model loaded successfully.")
         return loaded
     }
 
     private fun copyModelToFiles(): String {
-        val modelFile = File(context.filesDir, "farz_model.pte")
+        val modelFile = File(context.filesDir, "farz_model.ptl")
         if (!modelFile.exists() || modelFile.length() == 0L) {
-            val temporary = File(context.filesDir, "farz_model.pte.tmp")
+            val temporary = File(context.filesDir, "farz_model.ptl.tmp")
             try {
                 context.assets.open(MODEL_ASSET).use { input ->
                     temporary.outputStream().use { output -> input.copyTo(output) }
@@ -65,11 +60,11 @@ class FarzClassifier(private val context: Context) {
             } catch (error: Exception) {
                 temporary.delete()
                 throw IllegalStateException(
-                    "MODEL_NOT_FOUND: add app/assets/models/farz_model.pte and rebuild the APK.",
+                    "MODEL_NOT_FOUND: add app/assets/models/farz_model.ptl and rebuild the APK.",
                     error
                 )
             }
-            if (temporary.length() == 0L) throw IllegalStateException("MODEL_NOT_FOUND: empty PTE asset.")
+            if (temporary.length() == 0L) throw IllegalStateException("MODEL_NOT_FOUND: empty Lite model.")
             if (!temporary.renameTo(modelFile)) {
                 temporary.copyTo(modelFile, overwrite = true)
                 temporary.delete()
@@ -83,11 +78,10 @@ class FarzClassifier(private val context: Context) {
         val model = getModule()
         val input = preprocess(imagePath)
         val tensor = Tensor.fromBlob(input, longArrayOf(1, 3, IMAGE_SIZE.toLong(), IMAGE_SIZE.toLong()))
-        val values = model.forward(EValue.from(tensor))
-        if (values.isEmpty()) throw IllegalStateException("ExecuTorch returned no output tensor.")
-        val logits = values[0].toTensor().dataAsFloatArray
+        val output = model.forward(IValue.from(tensor)).toTensor()
+        val logits = output.dataAsFloatArray
         if (logits.size != CLASS_NAMES.size) {
-            throw IllegalStateException("Expected 5 class scores, received ${logits.size}.")
+            throw IllegalStateException("Expected 5 class scores, received \${logits.size}.")
         }
         val probabilities = softmax(logits)
         val predictedIndex = probabilities.indices.maxByOrNull { probabilities[it] } ?: 0
