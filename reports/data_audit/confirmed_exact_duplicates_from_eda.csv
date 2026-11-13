@@ -1,0 +1,4 @@
+duplicate_group,class_a,file_a,class_b,file_b,status
+DUP-01,glass,glass115.jpg,metal,metal91.jpg,byte-identical image files; conflicting category labels; retain pending manual adjudication
+DUP-02,glass,glass176.jpg,plastic,plastic152.jpg,byte-identical image files; conflicting category labels; retain pending manual adjudication
+DUP-03,glass,glass389.jpg,plastic,plastic332.jpg,byte-identical image files; conflicting category labels; retain pending manual adjudication
