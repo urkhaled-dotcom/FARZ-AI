@@ -7,6 +7,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Paint
+import android.util.Log
 import androidx.exifinterface.media.ExifInterface
 import org.pytorch.executorch.EValue
 import org.pytorch.executorch.Module
@@ -18,6 +19,7 @@ import kotlin.math.max
 /** Executes the FARZ MobileNetV3-Small PTE model locally with XNNPACK. */
 class FarzClassifier(private val context: Context) {
     companion object {
+        private const val TAG = "FARZ-Classifier"
         private const val MODEL_ASSET = "models/farz_model.pte"
         private const val IMAGE_SIZE = 224
         private val CLASS_NAMES = listOf("Glass", "Paper", "Cardboard", "Plastic", "Metal")
@@ -27,13 +29,18 @@ class FarzClassifier(private val context: Context) {
 
     @Volatile private var module: Module? = null
 
-    @Synchronized
+    /**
+     * Check only that the bundled PTE asset exists.
+     *
+     * Do not initialize ExecuTorch while the home screen is starting. Native
+     * model initialization is deferred until the user explicitly requests a
+     * classification, so a runtime/ABI issue cannot terminate app startup.
+     */
     fun isModelReady(): Boolean {
-        if (module != null) return true
         return try {
-            module = Module.load(copyModelToFiles())
-            true
-        } catch (_: Exception) {
+            context.assets.open(MODEL_ASSET).use { stream -> stream.read() >= 0 }
+        } catch (error: Exception) {
+            Log.e(TAG, "Model asset is missing or unreadable: $MODEL_ASSET", error)
             false
         }
     }
@@ -43,6 +50,7 @@ class FarzClassifier(private val context: Context) {
         module?.let { return it }
         val loaded = Module.load(copyModelToFiles())
         module = loaded
+        Log.i(TAG, "ExecuTorch model loaded successfully.")
         return loaded
     }
 
