@@ -1,7 +1,2 @@
-# Host export environment aligned with the Android ExecuTorch 1.5.1 runtime.
-# Use the PyTorch CPU wheel index to avoid pulling CUDA libraries.
---index-url https://download.pytorch.org/whl/cpu
---extra-index-url https://pypi.org/simple
-torch==2.14.0+cpu
-torchvision==0.29.0+cpu
-executorch==1.5.1
+# Compatibility alias: ONNX export dependencies are pinned in onnx_export_requirements.txt.
+-r onnx_export_requirements.txt
