@@ -12,27 +12,36 @@ class MainActivity : FlutterActivity() {
     companion object {
         private const val CHANNEL = "farz/inference"
         private const val TAG = "FARZ-MainActivity"
+        private const val MODEL_ASSET = "models/farz_model.pte"
     }
 
     private val inferenceExecutor = Executors.newSingleThreadExecutor()
     private val mainHandler = Handler(Looper.getMainLooper())
-    private lateinit var classifier: FarzClassifier
+
+    // Defer construction of the classifier (and any ExecuTorch class/native
+    // initialization) until the user actually requests an inference.
+    private val classifier: FarzClassifier by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+        FarzClassifier(applicationContext)
+    }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        classifier = FarzClassifier(applicationContext)
+
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     "isModelReady" -> inferenceExecutor.execute {
+                        // Check the Android asset directly. This deliberately
+                        // does not touch FarzClassifier or ExecuTorch at startup.
                         val ready = try {
-                            classifier.isModelReady()
+                            assets.open(MODEL_ASSET).use { stream -> stream.read() >= 0 }
                         } catch (error: Throwable) {
                             Log.e(TAG, "Unable to inspect bundled model asset.", error)
                             false
                         }
                         mainHandler.post { result.success(ready) }
                     }
+
                     "classifyImage" -> {
                         val path = call.argument<String>("path")
                         if (path.isNullOrBlank()) {
@@ -56,6 +65,7 @@ class MainActivity : FlutterActivity() {
                             }
                         }
                     }
+
                     else -> result.notImplemented()
                 }
             }
