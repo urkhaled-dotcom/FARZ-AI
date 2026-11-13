@@ -1,24 +1,14 @@
-# FARZ on-device model assets
+# FARZ model assets
 
-The Experiment 01 MobileNetV3-Small checkpoint has been exported successfully to ExecuTorch 1.5.1 with the XNNPACK backend.
+The Android app requires the ONNX model file `farz_model.onnx` and its metadata JSON.
 
-## Required files
+- Architecture: MobileNetV3-Small
+- Classes, in output order: Glass, Paper, Cardboard, Plastic, Metal
+- Trash is excluded.
+- Input: RGB, 224×224, centered square padding RGB (245,247,242), bilinear resize, ImageNet normalization.
+- Runtime: Microsoft ONNX Runtime Android 1.31.1, CPU execution provider.
+- Export: ONNX opset 17 from the trained PyTorch Experiment 01 checkpoint.
 
-Place both files in this directory:
+Do not add an ONNX asset to this directory until the exporter reports 30/30 top-1 parity against PyTorch on the balanced test sample.
 
-- `farz_model.pte` — 6,124,436-byte on-device model.
-- `farz_model_metadata.json` — class order and preprocessing contract.
-
-Export verification:
-
-- Classes: Glass, Paper, Cardboard, Plastic, Metal.
-- Input: RGB, 224×224, centered square padding with RGB (245, 247, 242), bilinear resize, ImageNet normalization.
-- ExecuTorch Python runtime parity: **30/30 top-1 matches** against PyTorch.
-- Maximum absolute logit error: 0.00004268.
-- PTE SHA-256: `74ebef11b76292696b9f69f588ea550c90a978c447038493f5ad5b8a02018195`.
-
-## Android packaging
-
-Commit both files to this folder. The GitHub Actions workflow runs on changes under `app/**`. It invokes `scripts/prepare_android.py`, which copies the PTE into Android native assets at `app/android/src/main/assets/models/farz_model.pte` before the APK is built.
-
-Python parity has passed. It does not replace testing the built APK on a physical Android device, including classification with airplane mode enabled.
+The Android workflow packages one APK with ARMv7, ARM64, x86 and x86_64 native libraries. It fails rather than producing an app with a missing model.
