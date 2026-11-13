@@ -37,8 +37,8 @@ FARZ is a focused deep-learning course capstone: an Android-first, bilingual app
 - [x] PyTorch Dataset, image transforms, MobileNetV3-Small factory, training loop, and test evaluator implemented.
 - [x] Colab notebook prepared to download the dataset directly to Colab, train, evaluate, and save results to Drive.
 - [x] Local verification: seven Python tests pass; a tiny CPU smoke test also verified training, checkpoint saving, and test-report generation. These are code checks, not model-quality results.
-- [ ] Run the full training job on a Colab GPU and record real validation/test metrics.
-- [ ] Export the trained checkpoint to ExecuTorch and verify on Android.
+- [x] Full Colab MobileNetV3-Small run completed: best validation Macro F1 93.82%; held-out test accuracy 93.24% and Macro F1 93.22% (340 test images). See [Experiment 01](reports/experiments/MOBILENET_V3_SMALL_RUN_01.md).
+- [ ] Export the trained checkpoint to ExecuTorch and verify on Android. The checkpoint is approximately 5.94 MiB.
 - [ ] Integrate camera/gallery and offline inference into Flutter.
 - [ ] Final offline test on a physical Android phone.
 
