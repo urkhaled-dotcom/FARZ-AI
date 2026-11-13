@@ -51,6 +51,7 @@ build_file.write_text(text, encoding="utf-8")
 
 # FARZ CI workaround: disable crashing third-party lintVital task.
 root_build_file = ANDROID / "build.gradle.kts"
+marker = "// FARZ CI workaround: disable crashing third-party lintVital task."
 if root_build_file.is_file():
     root_text = root_build_file.read_text(encoding="utf-8")
     if marker not in root_text:
