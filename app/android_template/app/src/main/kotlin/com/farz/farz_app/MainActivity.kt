@@ -2,13 +2,17 @@ package com.farz.farz_app
 
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.util.concurrent.Executors
 
 class MainActivity : FlutterActivity() {
-    companion object { private const val CHANNEL = "farz/inference" }
+    companion object {
+        private const val CHANNEL = "farz/inference"
+        private const val TAG = "FARZ-MainActivity"
+    }
 
     private val inferenceExecutor = Executors.newSingleThreadExecutor()
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -21,7 +25,12 @@ class MainActivity : FlutterActivity() {
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     "isModelReady" -> inferenceExecutor.execute {
-                        val ready = try { classifier.isModelReady() } catch (_: Exception) { false }
+                        val ready = try {
+                            classifier.isModelReady()
+                        } catch (error: Throwable) {
+                            Log.e(TAG, "Unable to inspect bundled model asset.", error)
+                            false
+                        }
                         mainHandler.post { result.success(ready) }
                     }
                     "classifyImage" -> {
@@ -33,13 +42,15 @@ class MainActivity : FlutterActivity() {
                                 try {
                                     val output = classifier.classify(path)
                                     mainHandler.post { result.success(output) }
-                                } catch (error: Exception) {
+                                } catch (error: Throwable) {
+                                    Log.e(TAG, "On-device inference failed.", error)
                                     mainHandler.post {
-                                        result.error(
-                                            if (error.message?.contains("MODEL_NOT_FOUND") == true) "MODEL_NOT_FOUND" else "INFERENCE_FAILED",
-                                            error.message ?: "On-device inference failed.",
-                                            null
-                                        )
+                                        val code = when {
+                                            error.message?.contains("MODEL_NOT_FOUND") == true -> "MODEL_NOT_FOUND"
+                                            error is LinkageError -> "NATIVE_RUNTIME_UNAVAILABLE"
+                                            else -> "INFERENCE_FAILED"
+                                        }
+                                        result.error(code, error.message ?: "On-device inference failed.", null)
                                     }
                                 }
                             }
