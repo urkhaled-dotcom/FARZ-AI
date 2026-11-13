@@ -93,6 +93,23 @@ manifest = ANDROID / "app" / "src" / "main" / "AndroidManifest.xml"
 if not manifest.is_file():
     raise FileNotFoundError(manifest)
 manifest_text = manifest.read_text(encoding="utf-8")
+# The ONNX Runtime AAR can merge telemetry network permissions into the app.
+# Remove these permissions because FARZ performs inference entirely offline.
+manifest_text = re.sub(
+    r"<manifest\\b",
+    '<manifest xmlns:tools="http://schemas.android.com/tools"',
+    manifest_text,
+    count=1,
+) if "xmlns:tools=" not in manifest_text else manifest_text
+for permission in ("android.permission.INTERNET", "android.permission.ACCESS_NETWORK_STATE"):
+    tag = f'<uses-permission android:name="{permission}" tools:node="remove" />'
+    if tag not in manifest_text:
+        manifest_text = re.sub(
+            r"(<application\\b)",
+            tag + r"\\n    \\1",
+            manifest_text,
+            count=1,
+        )
 app_match = re.search(r"<application\b[^>]*>", manifest_text, flags=re.DOTALL)
 if not app_match:
     raise RuntimeError("No application element in AndroidManifest.xml")
