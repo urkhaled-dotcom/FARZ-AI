@@ -99,12 +99,12 @@ class FarzClassifier(private val context: Context) {
         val logits = try {
             val value = results[0].value
             (value as? Array<*>)?.firstOrNull() as? FloatArray
-                ?: throw IllegalStateException("Unexpected ONNX output type: \${value.javaClass.name}")
+                ?: throw IllegalStateException("Unexpected ONNX output type: ${value.javaClass.name}")
         } finally {
             results.close()
         }
         if (logits.size != CLASS_NAMES.size) {
-            throw IllegalStateException("Expected 5 class scores, received \${logits.size}.")
+            throw IllegalStateException("Expected 5 class scores, received ${logits.size}.")
         }
         val probabilities = softmax(logits)
         val predictedIndex = probabilities.indices.maxByOrNull { probabilities[it] } ?: 0
