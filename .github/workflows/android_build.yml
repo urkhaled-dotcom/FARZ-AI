@@ -37,6 +37,15 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
+      - name: Verify the checked-out inference bridge
+        run: |
+          echo "Commit: $GITHUB_SHA"
+          sed -n '18,30p' lib/services/farz_inference_service.dart
+          if grep -q "const FileSystemException" lib/services/farz_inference_service.dart; then
+            echo "Stale inference service source was checked out."
+            exit 1
+          fi
+
       - name: Analyze
         run: flutter analyze --no-fatal-infos
 
