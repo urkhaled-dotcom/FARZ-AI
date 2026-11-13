@@ -161,6 +161,37 @@ class _FarzHomePageState extends State<FarzHomePage> {
     super.initState();
     _checkModel();
     _loadHistory();
+    _recoverLostImage();
+  }
+
+  Future<void> _recoverLostImage() async {
+    try {
+      final response = await _picker.retrieveLostData();
+      if (response.isEmpty) return;
+      final recovered = response.files?.isNotEmpty == true
+          ? response.files!.first
+          : response.file;
+      if (recovered != null) {
+        await _acceptImage(recovered);
+      } else if (response.exception != null && mounted) {
+        setState(() => _error = _friendlyError(response.exception!));
+      }
+    } catch (error) {
+      if (mounted) setState(() => _error = _friendlyError(error));
+    }
+  }
+
+  Future<void> _acceptImage(XFile selected) async {
+    final file = File(selected.path);
+    if (!await file.exists() || await file.length() <= 0) {
+      throw const FileSystemException('The selected image is missing or empty.');
+    }
+    if (!mounted) return;
+    setState(() {
+      _image = file;
+      _result = null;
+      _error = null;
+    });
   }
 
   Future<void> _checkModel() async {
@@ -221,14 +252,10 @@ class _FarzHomePageState extends State<FarzHomePage> {
         maxWidth: 1280,
         maxHeight: 1280,
       );
-      if (selected == null || !mounted) return;
-      setState(() {
-        _image = File(selected.path);
-        _result = null;
-        _error = null;
-      });
+      if (selected == null) return;
+      await _acceptImage(selected);
     } catch (error) {
-      if (mounted) setState(() => _error = tr('تعذر فتح الصورة: $error', 'Could not open image: $error'));
+      if (mounted) setState(() => _error = _friendlyError(error));
     }
   }
 
@@ -253,14 +280,26 @@ class _FarzHomePageState extends State<FarzHomePage> {
   }
 
   String _friendlyError(Object error) {
+    if (error is PlatformException) {
+      switch (error.code) {
+        case 'MODEL_NOT_FOUND':
+          return tr('ملف نموذج الذكاء الاصطناعي غير موجود داخل التطبيق.', 'The AI model is missing from the app.');
+        case 'NATIVE_RUNTIME_UNAVAILABLE':
+          return tr('تعذر تحميل مكتبة تشغيل الذكاء الاصطناعي على هذا الجهاز.', 'The on-device AI runtime could not be loaded.');
+        case 'INFERENCE_OUT_OF_MEMORY':
+          return tr('الصورة أكبر من الذاكرة المتاحة. جرّب صورة أصغر أو أعد تشغيل التطبيق.', 'Not enough memory to process this image. Try a smaller image.');
+        case 'IMAGE_UNREADABLE':
+        case 'IMAGE_DECODE_FAILED':
+          return tr('تعذر قراءة الصورة. جرّب صورة بصيغة JPG أو PNG.', 'The image could not be read. Try a JPG or PNG image.');
+        default:
+          return tr('تعذر إكمال التصنيف. جرّب صورة أخرى.', 'Classification could not be completed. Try another image.');
+      }
+    }
     final text = error.toString();
     if (text.contains('MODEL_NOT_FOUND') || text.contains('model file')) {
-      return tr(
-        'ملف النموذج غير مدمج داخل التطبيق بعد. أضف farz_model.onnx إلى assets/models ثم أعد البناء.',
-        'The model is not bundled yet. Add farz_model.onnx to assets/models and rebuild the APK.',
-      );
+      return tr('ملف نموذج الذكاء الاصطناعي غير موجود داخل التطبيق.', 'The AI model is missing from the app.');
     }
-    return tr('حدث خطأ أثناء التصنيف: $text', 'Classification failed: $text');
+    return tr('حدث خطأ أثناء معالجة الصورة: $text', 'Image processing failed: $text');
   }
 
   String _tip(String label) => switch (label) {
