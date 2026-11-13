@@ -1,7 +1,7 @@
 name: farz_app
 description: FARZ — offline waste material classification app.
 publish_to: 'none'
-version: 0.3.2+5
+version: 0.3.3+6
 
 environment:
   sdk: '>=3.9.0 <4.0.0'
