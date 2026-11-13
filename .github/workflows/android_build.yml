@@ -6,12 +6,6 @@ concurrency:
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - 'app/**'
-      - 'scripts/prepare_android.py'
-      - 'ml/src/export/export_onnx.py'
-      - '.github/workflows/android_build.yml'
 
 jobs:
   build:
@@ -35,6 +29,9 @@ jobs:
           if [ ! -d android ]; then
             flutter create --platforms=android --org com.farz --project-name farz_app .
           fi
+
+      - name: Check Python setup scripts
+        run: python -m py_compile ../scripts/prepare_android.py ../ml/src/export/export_onnx.py
 
       - name: Install FARZ Android inference bridge and branding
         run: python ../scripts/prepare_android.py
@@ -67,7 +64,7 @@ jobs:
       - name: Build universal APK for ARMv7, ARM64, x86 and x86_64
         run: flutter build apk --release --target-platform android-arm,android-arm64,android-x86,android-x64
 
-      - name: Verify APK contains model and three native runtimes
+      - name: Verify APK contains model and four native runtimes
         run: |
           set -euo pipefail
           APK="build/app/outputs/flutter-apk/app-release.apk"
