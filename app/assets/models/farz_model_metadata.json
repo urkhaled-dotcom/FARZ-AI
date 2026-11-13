@@ -8,6 +8,8 @@
     "Metal"
   ],
   "image_size": 224,
+  "input_name": "input",
+  "output_name": "logits",
   "input_layout": "NCHW",
   "color_order": "RGB",
   "padding_rgb": [
@@ -26,6 +28,8 @@
     0.224,
     0.225
   ],
-  "runtime": "ExecuTorch Android 1.5.1",
-  "backend": "XNNPACK"
+  "runtime": "Microsoft ONNX Runtime Android 1.31.1",
+  "execution_provider": "CPU",
+  "onnx_opset": 17,
+  "export_status": "awaiting verified model file"
 }
