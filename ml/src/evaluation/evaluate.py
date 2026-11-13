@@ -36,15 +36,19 @@ def main():
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model=build_model(pretrained=False).to(device);model.load_state_dict(checkpoint["model_state_dict"]);model.eval()
     y_true=[];y_pred=[];records=[];total_loss=0.0;criterion=torch.nn.CrossEntropyLoss()
+    row_cursor=0
     with torch.inference_mode():
         for batch,targets in tqdm(loader,desc="test"):
             batch=batch.to(device);targets=targets.to(device);logits=model(batch);loss=criterion(logits,targets)
             probs=logits.softmax(dim=1);confidence,prediction=probs.max(dim=1)
             total_loss+=float(loss.item())*targets.size(0)
-            y_true.extend(targets.cpu().tolist());y_pred.extend(prediction.cpu().tolist())
-            for truth,pred,score in zip(targets.cpu().tolist(),prediction.cpu().tolist(),confidence.cpu().tolist()):
-                records.append({"true_class":classes[truth],"predicted_class":classes[pred],
-                                "top1_score":score,"correct":truth==pred})
+            true_batch=targets.cpu().tolist();pred_batch=prediction.cpu().tolist();score_batch=confidence.cpu().tolist()
+            y_true.extend(true_batch);y_pred.extend(pred_batch)
+            for truth,pred,score in zip(true_batch,pred_batch,score_batch):
+                source_row=dataset.rows[row_cursor];row_cursor+=1
+                records.append({"relative_path":source_row["relative_path"],
+                    "true_class":classes[truth],"predicted_class":classes[pred],
+                    "top1_score":score,"correct":truth==pred})
     report=classification_report(y_true,y_pred,labels=list(range(len(classes))),target_names=classes,
       output_dict=True,zero_division=0)
     metrics={"test_images":len(dataset),"test_loss":total_loss/len(dataset),
