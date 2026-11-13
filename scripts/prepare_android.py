@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Apply FARZ native bridge, launcher branding, ABI filters and packaged model."""
+"""Apply FARZ Android inference bridge, launcher branding and broad phone ABI support."""
 from __future__ import annotations
 import re
 import shutil
@@ -30,7 +30,7 @@ if not TEMPLATE_RES.is_dir():
     raise FileNotFoundError(f"FARZ Android resource templates missing: {TEMPLATE_RES}")
 shutil.copytree(TEMPLATE_RES, RES, dirs_exist_ok=True)
 
-# Configure Gradle: min SDK and only ABIs that ship libexecutorch.so.
+# Configure Gradle: Android 7+ and all relevant 32/64-bit phone ABIs.
 build_file = ANDROID / "app" / "build.gradle.kts"
 text = build_file.read_text(encoding="utf-8")
 text, min_count = re.subn(r"minSdk\s*=\s*flutter\.minSdkVersion", "minSdk = 24", text, count=1)
@@ -39,20 +39,23 @@ if min_count == 0 and not re.search(r"minSdk\s*=", text):
     if count != 1:
         raise RuntimeError("Could not set Android minSdk.")
 
-# Drop generated NDK/ABI blocks and add the exact supported pair.
+# Remove generated native ABI blocks and install the supported FARZ set.
 text = re.sub(r"(?ms)^\s*ndk\s*\{[^{}]*\}\s*", "", text)
 text = re.sub(r"(?m)^\s*abiFilters\s*.*(?:\n|$)", "", text)
 text, count = re.subn(
     r"defaultConfig\s*\{",
-    'defaultConfig {\n        ndk { abiFilters += setOf("arm64-v8a", "x86_64") }',
+    'defaultConfig {\n        ndk { abiFilters += setOf("armeabi-v7a", "arm64-v8a", "x86_64") }',
     text,
     count=1,
 )
 if count != 1:
-    raise RuntimeError("Could not restrict Android ABIs to arm64-v8a and x86_64.")
+    raise RuntimeError("Could not set FARZ Android ABI filters.")
 
+# Replace the 64-bit-only ExecuTorch dependency with the PyTorch Lite runtime.
+text = re.sub(r'^\s*implementation\("org\.pytorch:executorch-android:[^"]+"\)\s*\n', "", text, flags=re.MULTILINE)
+text = re.sub(r'^\s*implementation\("org\.pytorch:pytorch_android_lite:[^"]+"\)\s*\n', "", text, flags=re.MULTILINE)
 required = [
-    'implementation("org.pytorch:executorch-android:1.5.1")',
+    'implementation("org.pytorch:pytorch_android_lite:2.1.0")',
     'implementation("androidx.exifinterface:exifinterface:1.4.2")',
 ]
 missing = [line for line in required if line not in text]
@@ -62,23 +65,16 @@ if missing:
         text = text[:match.end()] + "\n    " + "\n    ".join(missing) + "\n" + text[match.end():]
     else:
         text += "\n\ndependencies {\n    " + "\n    ".join(missing) + "\n}\n"
+
+# Remove any earlier packaging rule that deliberately excluded ARMv7.
+text = re.sub(
+    r'(?ms)^\s*packaging\s*\{\s*jniLibs\s*\{\s*excludes\s*\+=\s*setOf\("\*\*/armeabi-v7a/\*\*"\)\s*\}\s*\}\s*',
+    "\n",
+    text,
+)
 build_file.write_text(text, encoding="utf-8")
 
-# Exclude 32-bit ARM JNI libraries supplied transitively by Flutter/plugin AARs.
-# The pinned ExecuTorch Android runtime does not ship libexecutorch.so for armeabi-v7a.
-marker = 'jniLibs { excludes += setOf("**/armeabi-v7a/**") }'
-if marker not in text:
-    text, count = re.subn(
-        r"(?m)^android\s*\{",
-        "android {\n    packaging {\n        jniLibs { excludes += setOf(\"**/armeabi-v7a/**\") }\n    }",
-        text,
-        count=1,
-    )
-    if count != 1:
-        raise RuntimeError("Could not add native-library packaging exclusions.")
-    build_file.write_text(text, encoding="utf-8")
-
-# Set human-facing app label and branded launcher icon.
+# Set the human-facing app label and branded launcher icons.
 manifest = ANDROID / "app" / "src" / "main" / "AndroidManifest.xml"
 if not manifest.is_file():
     raise FileNotFoundError(manifest)
@@ -109,15 +105,15 @@ if root_build.is_file():
         root_text += "\n\n" + marker + "\nsubprojects {\n    tasks.configureEach {\n        if (name.startsWith(\"lintVital\")) {\n            enabled = false\n        }\n    }\n}\n"
     root_build.write_text(root_text, encoding="utf-8")
 
-# ExecuTorch reads Android native assets, not Flutter's asset bundle.
+# The Lite PyTorch runtime loads Android native assets, not Flutter assets.
 native_assets = ANDROID / "app" / "src" / "main" / "assets" / "models"
 native_assets.mkdir(parents=True, exist_ok=True)
-pte_source = APP / "assets" / "models" / "farz_model.pte"
-pte_target = native_assets / "farz_model.pte"
-if not pte_source.is_file() or pte_source.stat().st_size == 0:
-    pte_target.unlink(missing_ok=True)
-    raise SystemExit("ERROR: FARZ PTE model missing or empty; refusing to build a disabled app.")
-shutil.copy2(pte_source, pte_target)
-print(f"Bundled FARZ PTE ({pte_target.stat().st_size:,} bytes).")
-print("Android ABIs restricted to arm64-v8a and x86_64.")
+model_source = APP / "assets" / "models" / "farz_model.ptl"
+model_target = native_assets / "farz_model.ptl"
+if not model_source.is_file() or model_source.stat().st_size == 0:
+    model_target.unlink(missing_ok=True)
+    raise SystemExit("ERROR: FARZ Lite model missing or empty. Export the verified farz_model.ptl before building.")
+shutil.copy2(model_source, model_target)
+print(f"Bundled FARZ PyTorch Lite model ({model_target.stat().st_size:,} bytes).")
+print("Android ABIs enabled: armeabi-v7a, arm64-v8a and x86_64.")
 print("FARZ app label and launcher icons installed.")
