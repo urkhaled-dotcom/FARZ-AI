@@ -124,9 +124,10 @@ class FarzClassifier(private val context: Context) {
             tensor.close()
         }
         val logits = try {
-            val value = results[0].value
-            (value as? Array<*>)?.firstOrNull() as? FloatArray
-                ?: throw IllegalStateException("Unexpected ONNX output type: ${value.javaClass.name}")
+            val outputTensor = results[0].value as? OnnxTensor
+                ?: throw IllegalStateException("ONNX model output is not a tensor.")
+            val outputBuffer = outputTensor.floatBuffer
+            FloatArray(outputBuffer.remaining()).also { outputBuffer.get(it) }
         } finally {
             results.close()
         }
