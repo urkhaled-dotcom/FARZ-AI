@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -98,6 +99,7 @@ class _FarzAppState extends State<FarzApp> {
       themeMode: _theme,
       locale: _locale,
       supportedLocales: const [Locale('ar'), Locale('en')],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       builder: (context, child) => Directionality(
         textDirection: arabic ? TextDirection.rtl : TextDirection.ltr,
         child: child ?? const SizedBox.shrink(),
