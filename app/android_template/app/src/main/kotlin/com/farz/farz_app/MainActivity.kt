@@ -32,7 +32,7 @@ class MainActivity : FlutterActivity() {
                 when (call.method) {
                     "isModelReady" -> inferenceExecutor.execute {
                         // Check the Android asset directly. This deliberately
-                        // does not touch FarzClassifier or ExecuTorch at startup.
+                        // does not touch FarzClassifier or PyTorch Lite at startup.
                         val ready = try {
                             assets.open(MODEL_ASSET).use { stream -> stream.read() >= 0 }
                         } catch (error: Throwable) {
