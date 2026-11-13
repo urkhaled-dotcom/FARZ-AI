@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Apply FARZ Android inference bridge, launcher branding and broad phone ABI support."""
+"""Apply FARZ Android inference bridge, branding and ONNX Runtime packaging."""
 from __future__ import annotations
 import re
 import shutil
@@ -44,7 +44,7 @@ text = re.sub(r"(?ms)^\s*ndk\s*\{[^{}]*\}\s*", "", text)
 text = re.sub(r"(?m)^\s*abiFilters\s*.*(?:\n|$)", "", text)
 text, count = re.subn(
     r"defaultConfig\s*\{",
-    'defaultConfig {\n        ndk { abiFilters += setOf("armeabi-v7a", "arm64-v8a", "x86_64") }',
+    'defaultConfig {\n        ndk { abiFilters += setOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64") }',
     text,
     count=1,
 )
@@ -53,9 +53,9 @@ if count != 1:
 
 # Replace the 64-bit-only ExecuTorch dependency with the PyTorch Lite runtime.
 text = re.sub(r'^\s*implementation\("org\.pytorch:executorch-android:[^"]+"\)\s*\n', "", text, flags=re.MULTILINE)
-text = re.sub(r'^\s*implementation\("org\.pytorch:pytorch_android_lite:[^"]+"\)\s*\n', "", text, flags=re.MULTILINE)
+text = re.sub(r'^\s*implementation\("org\.pytorch:pytorch_android_lite:[^"]+"\)\s*\n', "", text, flags=re.MULTILINE)\ntext = re.sub(r'^\s*implementation\("com\.microsoft\.onnxruntime:onnxruntime-android:[^"]+"\)\s*\n', "", text, flags=re.MULTILINE)
 required = [
-    'implementation("org.pytorch:pytorch_android_lite:2.1.0")',
+    'implementation("com.microsoft.onnxruntime:onnxruntime-android:1.31.1")',
     'implementation("androidx.exifinterface:exifinterface:1.4.2")',
 ]
 missing = [line for line in required if line not in text]
@@ -105,15 +105,15 @@ if root_build.is_file():
         root_text += "\n\n" + marker + "\nsubprojects {\n    tasks.configureEach {\n        if (name.startsWith(\"lintVital\")) {\n            enabled = false\n        }\n    }\n}\n"
     root_build.write_text(root_text, encoding="utf-8")
 
-# The Lite PyTorch runtime loads Android native assets, not Flutter assets.
+# ONNX Runtime loads Android native assets, not Flutter assets.
 native_assets = ANDROID / "app" / "src" / "main" / "assets" / "models"
 native_assets.mkdir(parents=True, exist_ok=True)
-model_source = APP / "assets" / "models" / "farz_model.ptl"
-model_target = native_assets / "farz_model.ptl"
+model_source = APP / "assets" / "models" / "farz_model.onnx"
+model_target = native_assets / "farz_model.onnx"
 if not model_source.is_file() or model_source.stat().st_size == 0:
     model_target.unlink(missing_ok=True)
-    raise SystemExit("ERROR: FARZ Lite model missing or empty. Export the verified farz_model.ptl before building.")
+    raise SystemExit("ERROR: FARZ ONNX model missing or empty. Export the verified farz_model.onnx before building.")
 shutil.copy2(model_source, model_target)
-print(f"Bundled FARZ PyTorch Lite model ({model_target.stat().st_size:,} bytes).")
-print("Android ABIs enabled: armeabi-v7a, arm64-v8a and x86_64.")
+print(f"Bundled FARZ ONNX model ({model_target.stat().st_size:,} bytes).")
+print("Android ABIs enabled: armeabi-v7a, arm64-v8a, x86 and x86_64.")
 print("FARZ app label and launcher icons installed.")
