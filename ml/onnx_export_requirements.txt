@@ -1,0 +1,8 @@
+# CPU-only exporter environment for FARZ Android ONNX deployment.
+--index-url https://download.pytorch.org/whl/cpu
+--extra-index-url https://pypi.org/simple
+torch==2.10.0+cpu
+torchvision==0.25.0+cpu
+onnx==1.23.0
+onnxruntime==1.31.1
+pillow
