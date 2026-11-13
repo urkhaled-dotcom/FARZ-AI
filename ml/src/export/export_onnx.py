@@ -49,7 +49,7 @@ def main():
     if args.parity_images < len(CLASS_NAMES):
         raise ValueError("--parity-images must be at least 5 (one image per class).")
 
-    checkpoint = torch.load(checkpoint_path, map_location="cpu")
+    checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
     if tuple(checkpoint.get("class_names", ())) != tuple(CLASS_NAMES):
         raise ValueError(f"Unexpected model class order: {checkpoint.get('class_names')}")
 
@@ -76,6 +76,7 @@ def main():
         output_names=["logits"],
         dynamic_axes=None,
         verbose=False,
+        dynamo=False,
     )
     graph = onnx.load(str(output_path))
     onnx.checker.check_model(graph)
