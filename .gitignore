@@ -13,6 +13,9 @@ ml/outputs/
 *.pt
 *.pte
 *.tflite
+# The verified mobile model is intentionally committed as an app asset.
+!app/assets/models/farz_model.pte
+!app/assets/models/farz_model_metadata.json
 
 # Flutter / Dart
 .dart_tool/
