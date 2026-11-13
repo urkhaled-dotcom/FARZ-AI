@@ -217,9 +217,9 @@ class _FarzHomePageState extends State<FarzHomePage> {
     try {
       final selected = await _picker.pickImage(
         source: source,
-        imageQuality: 95,
-        maxWidth: 1600,
-        maxHeight: 1600,
+        imageQuality: 90,
+        maxWidth: 1280,
+        maxHeight: 1280,
       );
       if (selected == null || !mounted) return;
       setState(() {
@@ -471,7 +471,7 @@ class _FarzHomePageState extends State<FarzHomePage> {
               style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
           ])
         : Stack(fit: StackFit.expand, children: [
-            Image.file(_image!, fit: BoxFit.contain),
+            Image.file(_image!, fit: BoxFit.contain, cacheWidth: 1024, cacheHeight: 1024),
             Positioned(top: 8, right: 8, child: IconButton.filledTonal(
               onPressed: () => setState(() { _image = null; _result = null; _error = null; }),
               icon: const Icon(Icons.close),
