@@ -23,30 +23,34 @@ for filename in ("MainActivity.kt", "FarzClassifier.kt"):
 
 build_file = ANDROID / "app" / "build.gradle.kts"
 text = build_file.read_text(encoding="utf-8")
-if re.search(r"minSdk\\s*=\\s*flutter\\.minSdkVersion", text):
-    text = re.sub(r"minSdk\\s*=\\s*flutter\\.minSdkVersion", "minSdk = 24", text, count=1)
-elif not re.search(r"minSdk\\s*=", text):
-    text, count = re.subn(r"defaultConfig\\s*\\{", "defaultConfig {\\n        minSdk = 24", text, count=1)
+if re.search(r"minSdk\s*=\s*flutter\.minSdkVersion", text):
+    text = re.sub(r"minSdk\s*=\s*flutter\.minSdkVersion", "minSdk = 24", text, count=1)
+elif not re.search(r"minSdk\s*=", text):
+    text, count = re.subn(r"defaultConfig\s*\{", "defaultConfig {\n        minSdk = 24", text, count=1)
     if count != 1:
         raise RuntimeError("Could not set Android minSdk in app/build.gradle.kts")
 
 if "abiFilters" not in text:
     text, count = re.subn(
-        r"defaultConfig\\s*\\{",
-        'defaultConfig {\\n        ndk { abiFilters += setOf("arm64-v8a", "x86_64") }',
-        text, count=1,
+        r"defaultConfig\s*\{",
+        'defaultConfig {\n        ndk { abiFilters += setOf("arm64-v8a", "x86_64") }',
+        text,
+        count=1,
     )
     if count != 1:
         raise RuntimeError("Could not set supported Android ABIs")
 
 if "org.pytorch:executorch-android:1.5.1" not in text or "androidx.exifinterface:exifinterface:1.4.2" not in text:
-    match = re.search(r"dependencies\\s*\\{", text)
+    match = re.search(r"dependencies\s*\{", text)
     if match:
-        text = text[:match.end()] + '\\n    implementation("org.pytorch:executorch-android:1.5.1")\\n    implementation("androidx.exifinterface:exifinterface:1.4.2")' + text[match.end():]
+        additions = '\n    implementation("org.pytorch:executorch-android:1.5.1")\n    implementation("androidx.exifinterface:exifinterface:1.4.2")'
+        text = text[:match.end()] + additions + text[match.end():]
     else:
-        text += '\\n\\ndependencies {\\n    implementation("org.pytorch:executorch-android:1.5.1")\\n    implementation("androidx.exifinterface:exifinterface:1.4.2")\\n}\\n'
+        text += '\n\ndependencies {\n    implementation("org.pytorch:executorch-android:1.5.1")\n    implementation("androidx.exifinterface:exifinterface:1.4.2")\n}\n'
 build_file.write_text(text, encoding="utf-8")
 
+# ExecuTorch Module.load() reads native Android assets. Copy the .pte from
+# the tracked Flutter app asset folder into Android's native asset directory.
 native_assets = ANDROID / "app" / "src" / "main" / "assets" / "models"
 native_assets.mkdir(parents=True, exist_ok=True)
 pte_source = APP / "assets" / "models" / "farz_model.pte"
