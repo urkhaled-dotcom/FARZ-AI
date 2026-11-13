@@ -12,7 +12,9 @@ ANDROID = APP / "android"
 TEMPLATE_MAIN = APP / "android_template" / "app" / "src" / "main"
 TEMPLATE_KOTLIN = TEMPLATE_MAIN / "kotlin" / "com" / "farz" / "farz_app"
 TEMPLATE_RES = APP / "android_template" / "res"
+TEMPLATE_ANDROID_TEST = APP / "android_template" / "app" / "src" / "androidTest"
 KOTLIN = ANDROID / "app" / "src" / "main" / "kotlin" / "com" / "farz" / "farz_app"
+ANDROID_TEST = ANDROID / "app" / "src" / "androidTest"
 RES = ANDROID / "app" / "src" / "main" / "res"
 
 if not (ANDROID / "app" / "build.gradle.kts").is_file():
@@ -30,6 +32,8 @@ for filename in ("MainActivity.kt", "FarzClassifier.kt"):
 if not TEMPLATE_RES.is_dir():
     raise FileNotFoundError(f"FARZ Android resource templates missing: {TEMPLATE_RES}")
 shutil.copytree(TEMPLATE_RES, RES, dirs_exist_ok=True)
+if TEMPLATE_ANDROID_TEST.is_dir():
+    shutil.copytree(TEMPLATE_ANDROID_TEST, ANDROID_TEST, dirs_exist_ok=True)
 
 # Configure Android 7+ and universal native library ABIs.
 build_file = ANDROID / "app" / "build.gradle.kts"
@@ -48,7 +52,7 @@ text = re.sub(r"(?ms)^\s*ndk\s*\{[^{}]*\}\s*", "", text)
 text = re.sub(r"(?m)^\s*abiFilters\s*.*(?:\n|$)", "", text)
 text, count = re.subn(
     r"defaultConfig\s*\{",
-    'defaultConfig {\n        ndk { abiFilters += setOf("armeabi-v7a", "arm64-v8a", "x86_64") }',
+    'defaultConfig {\n        ndk { abiFilters += setOf("armeabi-v7a", "arm64-v8a", "x86_64") }\n        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"',
     text,
     count=1,
 )
@@ -71,6 +75,9 @@ for artifact in (
 required = [
     'implementation("com.microsoft.onnxruntime:onnxruntime-android:1.31.1")',
     'implementation("androidx.exifinterface:exifinterface:1.4.2")',
+    'androidTestImplementation("androidx.test:runner:1.6.2")',
+    'androidTestImplementation("androidx.test:core:1.6.1")',
+    'androidTestImplementation("androidx.test.ext:junit:1.2.1")',
 ]
 missing = [line for line in required if line not in text]
 if missing:
