@@ -96,7 +96,7 @@ manifest_text = manifest.read_text(encoding="utf-8")
 # The ONNX Runtime AAR can merge telemetry network permissions into the app.
 # Remove these permissions because FARZ performs inference entirely offline.
 manifest_text = re.sub(
-    r"<manifest\\b",
+    r"<manifest\b",
     '<manifest xmlns:tools="http://schemas.android.com/tools"',
     manifest_text,
     count=1,
@@ -105,8 +105,8 @@ for permission in ("android.permission.INTERNET", "android.permission.ACCESS_NET
     tag = f'<uses-permission android:name="{permission}" tools:node="remove" />'
     if tag not in manifest_text:
         manifest_text = re.sub(
-            r"(<application\\b)",
-            tag + r"\\n    \\1",
+            r"(<application\b)",
+            tag + r"\n    \1",
             manifest_text,
             count=1,
         )
