@@ -31,8 +31,18 @@ jobs:
             flutter create --platforms=android --org com.farz --project-name farz_app .
           fi
 
-      - name: Install FARZ Android inference bridge
+      - name: Install FARZ Android inference bridge and branding
         run: python ../scripts/prepare_android.py
+
+      - name: Verify FARZ package configuration
+        run: |
+          set -euo pipefail
+          test -s assets/models/farz_model.pte
+          grep -F 'abiFilters += setOf("arm64-v8a", "x86_64")' android/app/build.gradle.kts
+          grep -F 'android:label="@string/app_name"' android/app/src/main/AndroidManifest.xml
+          grep -F '<string name="app_name">FARZ | فرز</string>' android/app/src/main/res/values/strings.xml
+          test -f android/app/src/main/res/mipmap-anydpi/ic_launcher.xml
+          test -f android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
 
       - name: Get dependencies
         run: flutter pub get
@@ -54,6 +64,41 @@ jobs:
 
       - name: Build APK
         run: flutter build apk --release
+
+      - name: Verify APK contains model and matching ExecuTorch native libraries
+        run: |
+          set -euo pipefail
+          APK="build/app/outputs/flutter-apk/app-release.apk"
+          test -s "$APK"
+          unzip -l "$APK" | grep -F 'assets/models/farz_model.pte'
+          unzip -l "$APK" | grep -F 'lib/arm64-v8a/libexecutorch.so'
+          unzip -l "$APK" | grep -F 'lib/x86_64/libexecutorch.so'
+          if unzip -l "$APK" | grep -q 'lib/armeabi-v7a/'; then
+            echo "Unsupported 32-bit ARM libraries were packaged."
+            exit 1
+          fi
+          echo "APK contains the PTE model and only ExecuTorch-supported ABIs."
+
+      - name: Smoke test release APK on Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          script: |
+            set -euo pipefail
+            adb install -r app/build/app/outputs/flutter-apk/app-release.apk
+            adb shell am force-stop com.farz.farz_app
+            adb shell monkey -p com.farz.farz_app 1
+            sleep 15
+            if ! adb shell pidof com.farz.farz_app >/dev/null; then
+              echo "FARZ process exited during startup."
+              adb logcat -d -t 4000
+              exit 1
+            fi
+            echo "FARZ launcher smoke test passed on Android API 35 x86_64."
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
