@@ -68,7 +68,7 @@ jobs:
       - name: Build universal APK for ARMv7, ARM64 and x86_64
         run: flutter build apk --release --target-platform android-arm,android-arm64,android-x64
 
-      - name: Verify APK contains model and four native runtimes
+      - name: Verify APK contains model and three ABI runtimes
         run: |
           set -euo pipefail
           APK="build/app/outputs/flutter-apk/app-release.apk"
