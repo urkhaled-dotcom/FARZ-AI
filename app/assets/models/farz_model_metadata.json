@@ -1,0 +1,31 @@
+{
+  "model_name": "FARZ MobileNetV3-Small",
+  "class_names": [
+    "Glass",
+    "Paper",
+    "Cardboard",
+    "Plastic",
+    "Metal"
+  ],
+  "image_size": 224,
+  "input_layout": "NCHW",
+  "color_order": "RGB",
+  "padding_rgb": [
+    245,
+    247,
+    242
+  ],
+  "resize_interpolation": "bilinear",
+  "normalization_mean": [
+    0.485,
+    0.456,
+    0.406
+  ],
+  "normalization_std": [
+    0.229,
+    0.224,
+    0.225
+  ],
+  "runtime": "ExecuTorch Android 1.5.1",
+  "backend": "XNNPACK"
+}
