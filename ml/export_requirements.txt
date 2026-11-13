@@ -1,0 +1,3 @@
+# Colab provides torch/torchvision. This package version is matched to the
+# ExecuTorch Android Maven artifact configured for FARZ (1.5.1).
+executorch==1.5.1
