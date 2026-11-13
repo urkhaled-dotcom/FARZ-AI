@@ -1,0 +1,14 @@
+{
+  "class_counts": {
+    "Cardboard": 403,
+    "Glass": 501,
+    "Metal": 410,
+    "Paper": 594,
+    "Plastic": 482
+  },
+  "total_five_class_images": 2390,
+  "invalid_images": [],
+  "exact_duplicate_groups": 3,
+  "cross_label_duplicate_groups": 3,
+  "source_was_modified": false
+}
