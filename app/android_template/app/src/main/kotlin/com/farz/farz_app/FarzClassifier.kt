@@ -10,6 +10,7 @@ import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Paint
 import android.util.Log
+import android.system.Os
 import androidx.exifinterface.media.ExifInterface
 import java.io.File
 import java.nio.FloatBuffer
@@ -27,9 +28,26 @@ class FarzClassifier(private val context: Context) {
         private val STD = floatArrayOf(0.229f, 0.224f, 0.225f)
     }
 
-    private val environment: OrtEnvironment by lazy { OrtEnvironment.getEnvironment() }
+    private val environment: OrtEnvironment by lazy { createOfflineEnvironment() }
     @Volatile private var session: OrtSession? = null
+    @Volatile private var sessionOptions: OrtSession.SessionOptions? = null
     @Volatile private var inputName: String? = null
+
+    private fun createOfflineEnvironment(): OrtEnvironment {
+        // Disable native telemetry before ONNX Runtime initializes.
+        try {
+            Os.setenv("ORT_DISABLE_TELEMETRY", "1", true)
+        } catch (error: Exception) {
+            Log.w(TAG, "Could not set telemetry environment flag; API opt-out will still be applied.", error)
+        }
+        val env = OrtEnvironment.getEnvironment()
+        try {
+            env.setTelemetry(false)
+        } catch (error: Exception) {
+            Log.w(TAG, "Could not explicitly disable ONNX Runtime telemetry.", error)
+        }
+        return env
+    }
 
     fun isModelReady(): Boolean = try {
         context.assets.open(MODEL_ASSET).use { stream -> stream.read() >= 0 }
@@ -47,11 +65,18 @@ class FarzClassifier(private val context: Context) {
         options.setOptimizationLevel(OrtSession.SessionOptions.OptLevel.ALL_OPT)
         val loaded = try {
             environment.createSession(modelPath, options)
-        } finally {
+        } catch (error: Throwable) {
             options.close()
+            throw error
         }
         val name = loaded.inputNames.firstOrNull()
-            ?: throw IllegalStateException("ONNX model has no input node.")
+        if (name == null) {
+            loaded.close()
+            options.close()
+            throw IllegalStateException("ONNX model has no input node.")
+        }
+        // Retain SessionOptions for at least as long as the associated OrtSession.
+        sessionOptions = options
         inputName = name
         session = loaded
         Log.i(TAG, "ONNX model loaded successfully. Input node: $name")
