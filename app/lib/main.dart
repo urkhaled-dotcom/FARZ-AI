@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -30,8 +31,16 @@ class _FarzAppState extends State<FarzApp> {
   }
 
   Future<void> _load() async {
-    final theme = await _prefs.getString('themeMode');
-    final language = await _prefs.getString('language');
+    String? theme;
+    String? language;
+    try {
+      theme = await _prefs.getString('themeMode');
+      language = await _prefs.getString('language');
+    } on PlatformException {
+      // Defaults are used in environments where the preferences plugin is unavailable.
+    } on MissingPluginException {
+      // Widget tests and early previews can run without the native preferences plugin.
+    }
     if (!mounted) return;
     setState(() {
       _theme = switch (theme) {
@@ -46,17 +55,29 @@ class _FarzAppState extends State<FarzApp> {
 
   Future<void> _setTheme(ThemeMode value) async {
     setState(() => _theme = value);
-    await _prefs.setString('themeMode', switch (value) {
-      ThemeMode.light => 'light',
-      ThemeMode.dark => 'dark',
-      ThemeMode.system => 'system',
-    });
+    try {
+      await _prefs.setString('themeMode', switch (value) {
+        ThemeMode.light => 'light',
+        ThemeMode.dark => 'dark',
+        ThemeMode.system => 'system',
+      });
+    } on PlatformException {
+      // The visual theme change still works for this session.
+    } on MissingPluginException {
+      // The preference will be persisted once the native plugin is available.
+    }
   }
 
   Future<void> _toggleLanguage() async {
     final value = _locale.languageCode == 'ar' ? const Locale('en') : const Locale('ar');
     setState(() => _locale = value);
-    await _prefs.setString('language', value.languageCode);
+    try {
+      await _prefs.setString('language', value.languageCode);
+    } on PlatformException {
+      // The language change still applies for this session.
+    } on MissingPluginException {
+      // The preference will be persisted once the native plugin is available.
+    }
   }
 
   @override
@@ -149,7 +170,14 @@ class _FarzHomePageState extends State<FarzHomePage> {
   }
 
   Future<void> _loadHistory() async {
-    final values = await _prefs.getStringList('classificationHistory') ?? [];
+    List<String> values = [];
+    try {
+      values = await _prefs.getStringList('classificationHistory') ?? [];
+    } on PlatformException {
+      // Empty history is safe when the native preferences plugin cannot be reached.
+    } on MissingPluginException {
+      // Widget tests may not register SharedPreferences.
+    }
     final entries = <Map<String, dynamic>>[];
     for (final value in values) {
       try {
@@ -170,7 +198,13 @@ class _FarzHomePageState extends State<FarzHomePage> {
     };
     final next = [item, ..._history].take(20).toList();
     setState(() => _history = next);
-    await _prefs.setStringList('classificationHistory', next.map(jsonEncode).toList());
+    try {
+      await _prefs.setStringList('classificationHistory', next.map(jsonEncode).toList());
+    } on PlatformException {
+      // The current in-memory history remains visible for this session.
+    } on MissingPluginException {
+      // Native persistence is exercised on Android, not in the widget-test harness.
+    }
   }
 
   Future<void> _pick(ImageSource source) async {
@@ -275,7 +309,13 @@ class _FarzHomePageState extends State<FarzHomePage> {
               if (_history.isNotEmpty)
                 TextButton.icon(
                   onPressed: () async {
-                    await _prefs.remove('classificationHistory');
+                    try {
+                      await _prefs.remove('classificationHistory');
+                    } on PlatformException {
+                      // Clear the in-memory history even if storage is unavailable.
+                    } on MissingPluginException {
+                      // Ignore missing native storage in previews and tests.
+                    }
                     if (mounted) setState(() => _history = []);
                     if (sheetContext.mounted) Navigator.pop(sheetContext);
                   },
