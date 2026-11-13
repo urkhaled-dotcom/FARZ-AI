@@ -113,13 +113,16 @@ jobs:
           disable-animations: true
           script: |
             set -eu
+            # Exercise the actual ONNX model on Android 10 before checking the release APK.
+            ./app/android/gradlew -p app/android connectedAndroidTest --no-daemon
+            adb uninstall com.farz.farz_app || true
             adb install -r app/build/app/outputs/flutter-apk/app-release.apk
             adb shell am force-stop com.farz.farz_app
             adb shell monkey -p com.farz.farz_app 1
             sleep 15
             if ! adb shell pidof com.farz.farz_app >/dev/null; then
-              echo "FARZ process exited during startup."
+              echo "FARZ process exited during release startup."
               adb logcat -d -t 4000
               exit 1
             fi
-            echo "FARZ installed and remained running on Android API 29."
+            echo "FARZ ONNX inference test and release startup passed on Android API 29."
