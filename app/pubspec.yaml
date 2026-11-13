@@ -1,7 +1,7 @@
 name: farz_app
-description: FARZ offline waste-material classification app.
+description: FARZ — offline waste material classification app.
 publish_to: 'none'
-version: 0.1.0+1
+version: 0.2.0+2
 
 environment:
   sdk: '>=3.9.0 <4.0.0'
@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  image_picker: ^1.2.4
+  shared_preferences: ^2.5.5
 
 dev_dependencies:
   flutter_test:
@@ -17,3 +19,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/brand/farz_logo.svg
+    - assets/brand/farz_app_icon.svg
