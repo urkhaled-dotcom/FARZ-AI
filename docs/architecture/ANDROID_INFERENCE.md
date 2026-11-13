@@ -36,7 +36,7 @@ Must match the validation transform used in PyTorch:
 
 ## Model asset
 
-The PTE must be generated from the exact Experiment 01 checkpoint and must pass the export notebook's 30-image balanced top-1 parity test. Add:
+The PTE has been generated from the exact Experiment 01 checkpoint and passed the export notebook's 30-image balanced top-1 parity test (30/30). Add:
 - app/assets/models/farz_model.pte
 - app/assets/models/farz_model_metadata.json
 
