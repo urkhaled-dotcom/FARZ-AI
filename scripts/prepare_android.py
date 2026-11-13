@@ -48,7 +48,7 @@ text = re.sub(r"(?ms)^\s*ndk\s*\{[^{}]*\}\s*", "", text)
 text = re.sub(r"(?m)^\s*abiFilters\s*.*(?:\n|$)", "", text)
 text, count = re.subn(
     r"defaultConfig\s*\{",
-    'defaultConfig {\n        ndk { abiFilters += setOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64") }',
+    'defaultConfig {\n        ndk { abiFilters += setOf("armeabi-v7a", "arm64-v8a", "x86_64") }',
     text,
     count=1,
 )
@@ -157,5 +157,5 @@ if not model_source.is_file() or model_source.stat().st_size == 0:
     )
 shutil.copy2(model_source, model_target)
 print(f"Bundled FARZ ONNX model ({model_target.stat().st_size:,} bytes).")
-print("Android ABIs enabled: armeabi-v7a, arm64-v8a, x86 and x86_64.")
+print("Android ABIs enabled: armeabi-v7a, arm64-v8a and x86_64.")
 print("FARZ app label and launcher icons installed.")
