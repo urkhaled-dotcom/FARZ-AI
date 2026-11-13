@@ -36,7 +36,7 @@ FARZ is a focused deep-learning course capstone: an Android-first, bilingual mob
 - [x] Dataset audit scripts run against the provided dataset archive: 2,390 valid images, zero unreadable images, three exact cross-label duplicate groups.
 - [x] Local data-contract tests pass (2 tests).
 - [ ] Review remaining near-duplicate candidates and label quality.
-- [ ] Create leakage-aware train/validation/test split.
+- [x] Create a reproducible leakage-aware split: 1,702 train / 341 validation / 341 test; near-duplicate candidates grouped before splitting.
 - [ ] Train and evaluate a compact PyTorch model.
 - [ ] Validate ExecuTorch export and Android runtime.
 - [ ] Integrate camera/gallery and offline inference.
@@ -56,6 +56,7 @@ From the repository root, after making the original ZIP available locally:
 pip install -r requirements.txt
 python ml/src/data/audit_dataset.py --archive /path/to/dataset-resized.zip --root .
 python ml/src/data/build_training_candidates.py --root .
+python ml/src/data/create_data_split.py --root .
 python -m pytest -q
 ```
 
@@ -74,4 +75,4 @@ docs/                 Scope, architecture, decisions, and branding
 
 ## Next step
 
-Complete the duplicate and label review, create a reproducible leakage-aware split, then train MobileNetV3-Small using PyTorch in Google Colab. Keep the course-project scope focused: one image, one waste item, five classes, offline Android inference.
+The current reproducible split is generated from 2,384 candidates after holding out six files in three conflicting exact-duplicate pairs. Twenty-four non-exact perceptual pairs are assigned to the same split using grouped stratification. Next, train MobileNetV3-Small using PyTorch in Google Colab. Keep the course-project scope focused: one image, one waste item, five classes, offline Android inference.
