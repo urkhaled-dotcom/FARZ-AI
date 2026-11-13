@@ -16,7 +16,7 @@ class FarzInferenceService {
   }
 
   Future<ClassificationResult> classify(File image) async {
-    if (!await image.exists()) throw const FileSystemException('Image file no longer exists.');
+    if (!await image.exists()) throw FileSystemException('Image file no longer exists.', image.path);
     final response = await _channel.invokeMethod<Map<dynamic, dynamic>>(
       'classifyImage', {'path': image.path},
     );
