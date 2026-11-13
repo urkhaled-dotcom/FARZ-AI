@@ -69,8 +69,8 @@ build_file.write_text(text, encoding="utf-8")
 marker = 'jniLibs { excludes += setOf("**/armeabi-v7a/**") }'
 if marker not in text:
     text, count = re.subn(
-        r"(?m)^android\\s*\\{",
-        'android {\\n    packaging {\\n        jniLibs { excludes += setOf("**/armeabi-v7a/**") }\\n    }',
+        r"(?m)^android\s*\{",
+        "android {\n    packaging {\n        jniLibs { excludes += setOf(\"**/armeabi-v7a/**\") }\n    }",
         text,
         count=1,
     )
