@@ -1,30 +1,54 @@
-# Experiment 01 — MobileNetV3-Small
+# Experiment 01 — MobileNetV3-Small (canonical manifest verified)
 
-**Status:** First full Colab training run completed.  
-**Runtime:** CUDA GPU  
-**Initialization:** ImageNet pretrained weights  
-**Best checkpoint:** epoch 12 of 17  
-**Checkpoint size:** 6,227,077 bytes (~5.94 MiB)  
-**Input:** RGB 224 × 224  
-**Classes:** Glass, Paper, Cardboard, Plastic, Metal
+**Status:** Full Colab training and held-out evaluation completed; test metrics independently reproduced from the uploaded checkpoint, exact split, and original source images.
 
-## Training and validation
+## Configuration
 
-| Metric | Best checkpoint |
+- Architecture: Torchvision MobileNetV3-Small
+- Initialization: ImageNet pretrained weights
+- Training device: CUDA GPU
+- Evaluation reproduced locally on CPU
+- Input: RGB 224 × 224
+- Classes/order: Glass, Paper, Cardboard, Plastic, Metal
+- Best checkpoint: epoch 12 of 17, selected by validation Macro F1
+- Checkpoint size: 6,227,077 bytes (~5.94 MiB)
+- Original Trash class excluded; no class merging
+
+## Canonical split used in this run
+
+The exact Colab data_split.csv uploaded after training was verified against the original dataset-resized archive.
+
+| Split | Images |
 |---|---:|
-| Best epoch (selected by validation Macro F1) | 12 |
-| Best validation Macro F1 | 93.82% |
-| Validation accuracy | 93.81% |
-| Training epochs completed | 17 |
-| Test set used for checkpoint selection | No |
+| Train | 1,705 |
+| Validation | 339 |
+| Test | 340 |
+| **Total** | **2,384** |
 
-Training accuracy approached 99.8% while validation accuracy was about 93%. This indicates a train/validation gap and some overfitting, but the validation curve remained strong. The selected checkpoint is epoch 12, not the final epoch.
+All 2,384 paths exist; every image SHA-256 matches the uploaded manifest. There are 2,360 unique perceptual groups, no group leakage, and no repeated SHA-256 values in the selected manifest.
+
+Manifest SHA-256:
+
+`9afb5036e95058134d5491e51808cb5aa952762e55f7848f10203bdba229db34`
+
+The canonical manifest is preserved in the project bundle as data/manifests/data_split_run_01.csv. An earlier repository summary (1,702 / 341 / 341) described a separately regenerated split and was not used for this run. Do not replace this exact manifest when reproducing Experiment 01.
+
+## Training / validation
+
+| Metric | Result |
+|---|---:|
+| Best checkpoint epoch | 12 / 17 |
+| Validation accuracy | 93.81% |
+| Validation Macro F1 | 93.82% |
+| Training accuracy at epoch 12 | 99.77% |
+
+The train/validation gap indicates some overfitting. The selected checkpoint is epoch 12, not the final epoch.
 
 ## Held-out test results
 
 | Metric | Result |
 |---|---:|
-| Test images evaluated | 340 |
+| Test images | 340 |
 | Correct predictions | 317 |
 | Incorrect predictions | 23 |
 | Accuracy | 93.24% |
@@ -33,7 +57,7 @@ Training accuracy approached 99.8% while validation accuracy was about 93%. This
 | Macro F1 | 93.22% |
 | Test loss | 0.2187 |
 
-### Per-class metrics
+### Per-class performance
 
 | Class | Precision | Recall | F1 | Support |
 |---|---:|---:|---:|---:|
@@ -47,7 +71,7 @@ Training accuracy approached 99.8% while validation accuracy was about 93%. This
 
 Rows are true classes; columns are predicted classes. Order: Glass, Paper, Cardboard, Plastic, Metal.
 
-| True \ Predicted | Glass | Paper | Cardboard | Plastic | Metal |
+| True \\ Predicted | Glass | Paper | Cardboard | Plastic | Metal |
 |---|---:|---:|---:|---:|---:|
 | Glass | 67 | 1 | 0 | 2 | 3 |
 | Paper | 1 | 80 | 1 | 0 | 3 |
@@ -57,19 +81,20 @@ Rows are true classes; columns are predicted classes. Order: Glass, Paper, Cardb
 
 ## Interpretation
 
-- Cardboard is the strongest class in this test run (F1 98.18%).
-- Metal has high recall (94.83%) but lower precision (80.88%): 13 non-metal samples were predicted as Metal. Seven of those came from Plastic.
-- Plastic recall is 88.41%; the largest confusion is Plastic → Metal (7 samples).
-- Paper and Cardboard remain distinct classes and both performed strongly in this test set.
+- Cardboard is strongest on this test set (F1 98.18%).
+- Metal has high recall (94.83%) but lower precision (80.88%): 13 non-metal photos were predicted as Metal, including seven Plastic photos.
+- Plastic recall is 88.41%; the largest confusion is Plastic → Metal (7 cases).
+- Paper and Cardboard remain separate classes and both perform strongly.
+- Raw softmax scores are not calibrated probabilities.
 
-Softmax top-1 scores in the prediction file are not calibrated probabilities. Do not describe them as calibrated confidence without a separate calibration step.
+## Independent reproducibility check
 
-## Reproducibility note — test count mismatch
+The checkpoint was reloaded in PyTorch 2.10.0 CPU and evaluated using the exact uploaded split and dataset images. All 340 predictions were reproduced and the following metrics matched the Colab output exactly at displayed precision: Accuracy 93.2353%, Macro Precision 93.2608%, Macro Recall 93.4627%, Macro F1 93.2153%.
 
-The submitted results bundle contains 340 test predictions. The previously committed split summary reported 341 test images. The exact `data_split.csv` used in the Colab runtime was not included in the uploaded bundle, so the one-image difference cannot yet be reconciled. The metrics above faithfully report the 340 images actually evaluated, but the split manifest from the exact Colab run must be saved with the experiment before final academic submission.
+A separate torch.export graph was also created for a sample input; its eager/exported logits matched exactly (maximum absolute difference 0.0). This is not yet an ExecuTorch PTE export.
 
-The original `test_predictions.csv` did not include source image paths. The evaluator has now been updated to include `relative_path` in future reports. No retraining is needed to use this updated evaluator, provided the same checkpoint, image set, and split manifest are retained.
+## Next deployment gate
 
-## Limitations
+Export this exact checkpoint to ExecuTorch 1.5.1/XNNPACK, verify PTE predictions against PyTorch on a balanced test sample, then build and test on a physical Android phone. Python parity does not replace real-device validation.
 
-This is a result on the held-out subset of TrashNet's mostly controlled-background images. It does not establish performance on cluttered scenes, multiple waste objects, or all real-world packaging. The next validation step is on-device export and inference parity, not another training run by default.
+The reported metrics apply to TrashNet's controlled-background photos. They do not establish equivalent performance on cluttered scenes or images containing multiple waste items.
