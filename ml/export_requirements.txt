@@ -1,3 +1,7 @@
-# Colab provides torch/torchvision. This package version is matched to the
-# ExecuTorch Android Maven artifact configured for FARZ (1.5.1).
+# Host export environment matching the FARZ Android ExecuTorch 1.5.1 AAR.
+# Install from the PyTorch CPU wheel index to avoid CUDA runtime mismatches.
+--index-url https://download.pytorch.org/whl/cpu
+--extra-index-url https://pypi.org/simple
+torch==2.14.0+cpu
+torchvision==0.29.0+cpu
 executorch==1.5.1
