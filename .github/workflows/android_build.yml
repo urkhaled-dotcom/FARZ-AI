@@ -69,7 +69,7 @@ jobs:
       - name: Build APK
         run: flutter build apk --release --target-platform android-arm64,android-x64
 
-      - name: Verify APK contains model and matching ExecuTorch native libraries
+      - name: Verify APK contains model, runtimes, label and launcher resources
         run: |
           set -euo pipefail
           APK="build/app/outputs/flutter-apk/app-release.apk"
@@ -81,7 +81,34 @@ jobs:
             echo "Unsupported 32-bit ARM libraries were packaged."
             exit 1
           fi
-          echo "APK contains the PTE model and only ExecuTorch-supported ABIs."
+          if command -v aapt >/dev/null 2>&1; then
+            aapt dump badging "$APK" | grep -E "application-label:|application-icon"
+          fi
+          echo "APK contains the model, native runtimes and FARZ launcher resources."
+
+      # Upload before the optional emulator smoke test so the APK remains
+      # available for inspection even if the hosted runner cannot fit an AVD.
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: farz-android-apk
+          path: app/build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Free runner disk space before emulator setup
+        run: |
+          set -euxo pipefail
+          echo "Disk before cleanup:"
+          df -h /
+          # The NDK and CMake are only needed while building. Remove them after
+          # the APK is complete so the Android emulator image can be installed.
+          sudo rm -rf /usr/local/lib/android/sdk/ndk
+          sudo rm -rf /usr/local/lib/android/sdk/cmake
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo docker system prune -af || true
+          echo "Disk after cleanup:"
+          df -h /
 
       - name: Smoke test release APK on Android emulator
         uses: reactivecircus/android-emulator-runner@v2
@@ -103,9 +130,3 @@ jobs:
               exit 1
             fi
             echo "FARZ launcher smoke test passed on Android API 35 x86_64."
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: farz-android-apk
-          path: app/build/app/outputs/flutter-apk/app-release.apk
