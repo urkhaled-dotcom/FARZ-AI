@@ -63,6 +63,7 @@ class FarzClassifier(private val context: Context) {
         val modelPath = copyModelToFiles()
         val options = OrtSession.SessionOptions()
         options.setIntraOpNumThreads(2)
+        options.setInterOpNumThreads(1)
         options.setOptimizationLevel(OrtSession.SessionOptions.OptLevel.ALL_OPT)
         val loaded = try {
             environment.createSession(modelPath, options)
@@ -166,6 +167,7 @@ class FarzClassifier(private val context: Context) {
             inSampleSize = sampleSize
             inPreferredConfig = android.graphics.Bitmap.Config.ARGB_8888
         }
+        Log.i(TAG, "Decoding image ${bounds.outWidth}x${bounds.outHeight} with sample=$sampleSize")
         val source = BitmapFactory.decodeFile(path, decodeOptions)
             ?: throw IllegalArgumentException("Could not decode selected image.")
         val oriented = applyExifOrientation(source, path)
