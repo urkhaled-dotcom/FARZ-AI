@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - 'app/**'
+      - 'scripts/prepare_android.py'
       - '.github/workflows/android_build.yml'
 
 jobs:
@@ -29,6 +30,9 @@ jobs:
           if [ ! -d android ]; then
             flutter create --platforms=android --org com.farz --project-name farz_app .
           fi
+
+      - name: Install FARZ Android inference bridge
+        run: python ../scripts/prepare_android.py
 
       - name: Get dependencies
         run: flutter pub get
