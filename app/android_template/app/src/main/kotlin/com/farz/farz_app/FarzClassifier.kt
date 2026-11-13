@@ -23,6 +23,7 @@ class FarzClassifier(private val context: Context) {
         private const val TAG = "FARZ-Classifier"
         private const val MODEL_ASSET = "models/farz_model.onnx"
         private const val IMAGE_SIZE = 224
+        private const val MAX_DECODE_EDGE = 2048
         private val CLASS_NAMES = listOf("Glass", "Paper", "Cardboard", "Plastic", "Metal")
         private val MEAN = floatArrayOf(0.485f, 0.456f, 0.406f)
         private val STD = floatArrayOf(0.229f, 0.224f, 0.225f)
@@ -150,7 +151,22 @@ class FarzClassifier(private val context: Context) {
     }
 
     private fun preprocess(path: String): FloatArray {
-        val source = BitmapFactory.decodeFile(path)
+        // Decode camera originals at a bounded working size to avoid OOM on phones
+        // with limited RAM (notably older Android 10 devices).
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeFile(path, bounds)
+        if (bounds.outWidth <= 0 || bounds.outHeight <= 0) {
+            throw IllegalArgumentException("Could not read selected image dimensions.")
+        }
+        var sampleSize = 1
+        while (max(bounds.outWidth / sampleSize, bounds.outHeight / sampleSize) > MAX_DECODE_EDGE) {
+            sampleSize *= 2
+        }
+        val decodeOptions = BitmapFactory.Options().apply {
+            inSampleSize = sampleSize
+            inPreferredConfig = android.graphics.Bitmap.Config.ARGB_8888
+        }
+        val source = BitmapFactory.decodeFile(path, decodeOptions)
             ?: throw IllegalArgumentException("Could not decode selected image.")
         val oriented = applyExifOrientation(source, path)
         val width = oriented.width
