@@ -63,7 +63,7 @@ jobs:
         run: flutter test
 
       - name: Build APK
-        run: flutter build apk --release
+        run: flutter build apk --release --target-platform android-arm64,android-x64
 
       - name: Verify APK contains model and matching ExecuTorch native libraries
         run: |
