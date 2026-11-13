@@ -2,9 +2,16 @@
 
 The full dataset manifests are generated locally from the original TrashNet archive and are not committed with the source images.
 
-- `five_class_manifest.csv`: expected to contain all 2,390 valid images from the five agreed classes.
-- `training_candidate_manifest.csv`: conservative candidate pool with six members of three cross-label exact duplicate pairs held out pending manual label review.
+- `five_class_manifest.csv`: 2,390 valid images from the five agreed classes.
+- `training_candidate_manifest.csv`: 2,384 candidates after holding out six members of three exact cross-label duplicate pairs.
+- `data_split.csv`: generated 70/15/15-style stratified group split (1,702 train / 341 validation / 341 test). All members of each perceptual candidate pair with pHash distance <= 4 are kept in the same split.
 
-Run `ml/src/data/audit_dataset.py` followed by `ml/src/data/build_training_candidates.py` to regenerate the manifests.
+From the repository root, run these commands after making the original dataset ZIP available:
 
-The candidate manifest is not a train/validation/test split. Do not train until remaining near-duplicate candidates and label quality are reviewed and a leakage-aware split is created.
+```bash
+python ml/src/data/audit_dataset.py --archive /path/to/dataset-resized.zip --root .
+python ml/src/data/build_training_candidates.py --root .
+python ml/src/data/create_data_split.py --root .
+```
+
+The original archive and source images are not modified. The legacy train/test split is not used.
