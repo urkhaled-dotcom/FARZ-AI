@@ -56,6 +56,9 @@ class MainActivity : FlutterActivity() {
                                     mainHandler.post {
                                         val code = when {
                                             error.message?.contains("MODEL_NOT_FOUND") == true -> "MODEL_NOT_FOUND"
+                                            error.message?.contains("IMAGE_UNREADABLE") == true -> "IMAGE_UNREADABLE"
+                                            error.message?.contains("IMAGE_DECODE_FAILED") == true -> "IMAGE_DECODE_FAILED"
+                                            error is OutOfMemoryError -> "INFERENCE_OUT_OF_MEMORY"
                                             error is LinkageError -> "NATIVE_RUNTIME_UNAVAILABLE"
                                             else -> "INFERENCE_FAILED"
                                         }
