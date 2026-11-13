@@ -12,13 +12,13 @@ class MainActivity : FlutterActivity() {
     companion object {
         private const val CHANNEL = "farz/inference"
         private const val TAG = "FARZ-MainActivity"
-        private const val MODEL_ASSET = "models/farz_model.pte"
+        private const val MODEL_ASSET = "models/farz_model.onnx"
     }
 
     private val inferenceExecutor = Executors.newSingleThreadExecutor()
     private val mainHandler = Handler(Looper.getMainLooper())
 
-    // Defer construction of the classifier (and any ExecuTorch class/native
+    // Defer construction of the classifier (and any ONNX Runtime class/native
     // initialization) until the user actually requests an inference.
     private val classifier: FarzClassifier by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
         FarzClassifier(applicationContext)
@@ -32,7 +32,7 @@ class MainActivity : FlutterActivity() {
                 when (call.method) {
                     "isModelReady" -> inferenceExecutor.execute {
                         // Check the Android asset directly. This deliberately
-                        // does not touch FarzClassifier or PyTorch Lite at startup.
+                        // does not touch FarzClassifier or ONNX Runtime at startup.
                         val ready = try {
                             assets.open(MODEL_ASSET).use { stream -> stream.read() >= 0 }
                         } catch (error: Throwable) {
