@@ -85,7 +85,7 @@ jobs:
           api-level: 35
           target: google_apis
           arch: x86_64
-          profile: pixel_6
+          profile: pixel_7_pro
           disable-animations: true
           script: |
             set -euo pipefail
