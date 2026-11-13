@@ -10,7 +10,7 @@ on:
     paths:
       - 'app/**'
       - 'scripts/prepare_android.py'
-      - 'ml/src/export/export_pytorch_lite.py'
+      - 'ml/src/export/export_onnx.py'
       - '.github/workflows/android_build.yml'
 
 jobs:
@@ -42,9 +42,9 @@ jobs:
       - name: Verify FARZ package configuration
         run: |
           set -euo pipefail
-          test -s assets/models/farz_model.ptl
-          grep -F 'abiFilters += setOf("armeabi-v7a", "arm64-v8a", "x86_64")' android/app/build.gradle.kts
-          grep -F 'implementation("org.pytorch:pytorch_android_lite:2.1.0")' android/app/build.gradle.kts
+          test -s assets/models/farz_model.onnx
+          grep -F 'abiFilters += setOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")' android/app/build.gradle.kts
+          grep -F 'implementation("com.microsoft.onnxruntime:onnxruntime-android:1.31.1")' android/app/build.gradle.kts
           grep -F 'android:label="@string/app_name"' android/app/src/main/AndroidManifest.xml
           grep -F '<string name="app_name">FARZ | فرز</string>' android/app/src/main/res/values/strings.xml
           test -f android/app/src/main/res/mipmap-anydpi/ic_launcher.xml
@@ -56,7 +56,7 @@ jobs:
       - name: Verify the checked-out inference bridge
         run: |
           echo "Commit: $GITHUB_SHA"
-          grep -F 'models/farz_model.ptl' android/app/src/main/kotlin/com/farz/farz_app/FarzClassifier.kt
+          grep -F 'models/farz_model.onnx' android/app/src/main/kotlin/com/farz/farz_app/FarzClassifier.kt
 
       - name: Analyze
         run: flutter analyze --no-fatal-infos
@@ -64,22 +64,23 @@ jobs:
       - name: Run widget tests
         run: flutter test
 
-      - name: Build universal APK for ARMv7, ARM64 and x86_64
-        run: flutter build apk --release --target-platform android-arm,android-arm64,android-x64
+      - name: Build universal APK for ARMv7, ARM64, x86 and x86_64
+        run: flutter build apk --release --target-platform android-arm,android-arm64,android-x86,android-x64
 
       - name: Verify APK contains model and three native runtimes
         run: |
           set -euo pipefail
           APK="build/app/outputs/flutter-apk/app-release.apk"
           test -s "$APK"
-          unzip -l "$APK" | grep -F 'assets/models/farz_model.ptl'
-          unzip -l "$APK" | grep -F 'lib/armeabi-v7a/libpytorch_jni_lite.so'
-          unzip -l "$APK" | grep -F 'lib/arm64-v8a/libpytorch_jni_lite.so'
-          unzip -l "$APK" | grep -F 'lib/x86_64/libpytorch_jni_lite.so'
+          unzip -l "$APK" | grep -F 'assets/models/farz_model.onnx'
+          unzip -l "$APK" | grep -F 'lib/armeabi-v7a/libonnxruntime.so'
+          unzip -l "$APK" | grep -F 'lib/arm64-v8a/libonnxruntime.so'
+          unzip -l "$APK" | grep -F 'lib/x86/libonnxruntime.so'
+          unzip -l "$APK" | grep -F 'lib/x86_64/libonnxruntime.so'
           if command -v aapt >/dev/null 2>&1; then
             aapt dump badging "$APK" | grep -E "application-label:|application-icon"
           fi
-          echo "APK contains the Lite model, ARMv7/ARM64/x86_64 runtimes and FARZ branding."
+          echo "APK contains ONNX model, all four native runtimes and FARZ branding."
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
