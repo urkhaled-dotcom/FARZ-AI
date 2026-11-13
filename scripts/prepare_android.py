@@ -64,6 +64,20 @@ if missing:
         text += "\n\ndependencies {\n    " + "\n    ".join(missing) + "\n}\n"
 build_file.write_text(text, encoding="utf-8")
 
+# Exclude 32-bit ARM JNI libraries supplied transitively by Flutter/plugin AARs.
+# The pinned ExecuTorch Android runtime does not ship libexecutorch.so for armeabi-v7a.
+marker = 'jniLibs { excludes += setOf("**/armeabi-v7a/**") }'
+if marker not in text:
+    text, count = re.subn(
+        r"(?m)^android\\s*\\{",
+        'android {\\n    packaging {\\n        jniLibs { excludes += setOf("**/armeabi-v7a/**") }\\n    }',
+        text,
+        count=1,
+    )
+    if count != 1:
+        raise RuntimeError("Could not add native-library packaging exclusions.")
+    build_file.write_text(text, encoding="utf-8")
+
 # Set human-facing app label and branded launcher icon.
 manifest = ANDROID / "app" / "src" / "main" / "AndroidManifest.xml"
 if not manifest.is_file():
