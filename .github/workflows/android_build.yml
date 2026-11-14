@@ -69,31 +69,42 @@ jobs:
       - name: Run widget tests
         run: flutter test
 
-      - name: Build universal APK for ARMv7, ARM64 and x86_64
-        run: flutter build apk --release --target-platform android-arm,android-arm64,android-x64
+      - name: Build ABI-specific APKs (ARMv7, ARM64 and x86_64)
+        run: flutter build apk --release --split-per-abi --target-platform android-arm,android-arm64,android-x64
 
-      - name: Verify APK contains model and three ABI runtimes
+      - name: Verify each APK contains the model and matching native runtime
         run: |
           set -euo pipefail
-          APK="build/app/outputs/flutter-apk/app-release.apk"
-          test -s "$APK"
-          unzip -l "$APK" | grep -F 'assets/models/farz_model.onnx'
-          unzip -l "$APK" | grep -F 'lib/armeabi-v7a/libonnxruntime.so'
-          unzip -l "$APK" | grep -F 'lib/armeabi-v7a/libonnxruntime4j_jni.so'
-          unzip -l "$APK" | grep -F 'lib/arm64-v8a/libonnxruntime.so'
-          unzip -l "$APK" | grep -F 'lib/arm64-v8a/libonnxruntime4j_jni.so'
-          unzip -l "$APK" | grep -F 'lib/x86_64/libonnxruntime.so'
-          unzip -l "$APK" | grep -F 'lib/x86_64/libonnxruntime4j_jni.so'
+          OUT="build/app/outputs/flutter-apk"
+          for ABI in armeabi-v7a arm64-v8a x86_64; do
+            APK="$OUT/app-$ABI-release.apk"
+            test -s "$APK"
+            unzip -l "$APK" | grep -F 'assets/models/farz_model.onnx'
+            unzip -l "$APK" | grep -F "lib/$ABI/libonnxruntime.so"
+            unzip -l "$APK" | grep -F "lib/$ABI/libonnxruntime4j_jni.so"
+            echo "Verified $ABI: $(du -h "$APK" | cut -f1)"
+          done
           if command -v aapt >/dev/null 2>&1; then
-            aapt dump badging "$APK" | grep -E "application-label:|application-icon"
+            aapt dump badging "$OUT/app-arm64-v8a-release.apk" | grep -E "application-label:|application-icon"
           fi
-          echo "APK contains ONNX model, all three native runtimes and FARZ branding."
 
-      - name: Upload APK
+      - name: Upload ARM64 APK (Galaxy S22+)
         uses: actions/upload-artifact@v4
         with:
-          name: farz-android-universal-apk
-          path: app/build/app/outputs/flutter-apk/app-release.apk
+          name: farz-android-arm64-apk
+          path: app/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+
+      - name: Upload ARMv7 APK (Galaxy A11 32-bit builds)
+        uses: actions/upload-artifact@v4
+        with:
+          name: farz-android-armv7-apk
+          path: app/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+
+      - name: Upload x86_64 APK (emulator)
+        uses: actions/upload-artifact@v4
+        with:
+          name: farz-android-x86_64-apk
+          path: app/build/app/outputs/flutter-apk/app-x86_64-release.apk
 
       - name: Free runner disk space before emulator setup
         run: |
@@ -144,7 +155,7 @@ jobs:
 
             adb uninstall com.farz.farz_app.test || true
             adb uninstall com.farz.farz_app || true
-            adb install -r app/build/app/outputs/flutter-apk/app-release.apk
+            adb install -r app/build/app/outputs/flutter-apk/app-x86_64-release.apk
             adb shell am force-stop com.farz.farz_app
             adb shell monkey -p com.farz.farz_app 1
             sleep 15
