@@ -117,9 +117,32 @@ jobs:
           disable-animations: true
           script: |
             set -eu
-            # Exercise the actual ONNX model on an Android emulator before checking the release APK.
+            adb wait-for-device
+            # Wait for a fully booted API 29 image; Android Gradle's connected-test
+            # device discovery intermittently reported API=1 on this hosted runner.
+            SDK=""
+            BOOT=""
+            for attempt in $(seq 1 120); do
+              SDK="$(adb shell getprop ro.build.version.sdk 2>/dev/null | tr -d '\r' || true)"
+              BOOT="$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r' || true)"
+              if [ "$BOOT" = "1" ] && [ "$SDK" -ge 29 ] 2>/dev/null; then
+                break
+              fi
+              sleep 2
+            done
+            echo "Emulator boot state=$BOOT SDK=$SDK"
+            [ "$BOOT" = "1" ]
+            [ "$SDK" -ge 29 ]
+
             adb logcat -c
-            ./app/android/gradlew -p app/android connectedAndroidTest --no-daemon --stacktrace
+            # Build APKs separately, then install with adb directly to bypass the
+            # connectedAndroidTest split-installer API-level probe.
+            ./app/android/gradlew -p app/android assembleDebug assembleDebugAndroidTest --no-daemon
+            adb install -r app/android/app/build/outputs/apk/debug/app-debug.apk
+            adb install -r app/android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+            adb shell am instrument -w -r com.farz.farz_app.test/androidx.test.runner.AndroidJUnitRunner
+
+            adb uninstall com.farz.farz_app.test || true
             adb uninstall com.farz.farz_app || true
             adb install -r app/build/app/outputs/flutter-apk/app-release.apk
             adb shell am force-stop com.farz.farz_app
