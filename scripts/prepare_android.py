@@ -35,7 +35,10 @@ shutil.copytree(TEMPLATE_RES, RES, dirs_exist_ok=True)
 if TEMPLATE_ANDROID_TEST.is_dir():
     shutil.copytree(TEMPLATE_ANDROID_TEST, ANDROID_TEST, dirs_exist_ok=True)
 
-# Configure Android 7+ and universal native library ABIs.
+# Configure Android 7+ and instrumentation. ABI selection is handled by
+# Flutter's --target-platform / --split-per-abi build flags. Do not also set
+# android.defaultConfig.ndk.abiFilters: Gradle forbids combining those with
+# Flutter's generated ABI split filters.
 build_file = ANDROID / "app" / "build.gradle.kts"
 text = build_file.read_text(encoding="utf-8")
 text, min_count = re.subn(
@@ -52,12 +55,12 @@ text = re.sub(r"(?ms)^\s*ndk\s*\{[^{}]*\}\s*", "", text)
 text = re.sub(r"(?m)^\s*abiFilters\s*.*(?:\n|$)", "", text)
 text, count = re.subn(
     r"defaultConfig\s*\{",
-    'defaultConfig {\n        ndk { abiFilters += setOf("armeabi-v7a", "arm64-v8a", "x86_64") }\n        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"',
+    'defaultConfig {\n        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"',
     text,
     count=1,
 )
 if count != 1:
-    raise RuntimeError("Could not set FARZ Android ABI filters.")
+    raise RuntimeError("Could not configure FARZ Android instrumentation runner.")
 
 # Use the maintained ONNX Runtime Android package, not the 64-bit-only PTE runtime.
 for artifact in (
